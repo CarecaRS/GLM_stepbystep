@@ -25,7 +25,7 @@ A documentação básica pode ser encontrada no site do próprio pacote clicando
 |_**Modelo de Regressão**_      |_**Características da Variável Dependente (ou o target)**_     |_**Distribuição**_|
 |-------------------------------|---------------------------------------------------------------|------------------|
 |[**Linear**](#1-modelo-linear)                     |Quantitativa                                                   |_Normal_|
-|[**Com transformação Box-Cox**](#2-modelo-linear-c-transformao-box-cox-(modelo-no-linear))  |Quantitativa                                                   |_Normal após a transformação_|
+|[**Com transformação Box-Cox**](#2-modelo-linear-c-transformao-box-cox-modelo-no-linear)  |Quantitativa                                                   |_Normal após a transformação_|
 |[**Logística Binária**]          |Qualitativa com **apenas duas categorias**                     |_Bernoulli_|
 |[**Logística Multinomial**]      |Qualitativa com 3+ categorias                                  |_Binomial_|
 |[**Poisson / Zero-Inflated Poisson**]                    |Quantitativa com valores inteiros e não-negativos (contagem)   |_Poisson_|
