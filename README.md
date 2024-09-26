@@ -7,14 +7,14 @@ Em GLM trabalha-se com o pacote `statsmodels`. Com ele sozinho é possível real
 Se o pacote não está instalado na máquina, simplesmente se comanda no terminal a instrução abaixo
 > pip3 install statsmodels
 
-Dentro dos scripts são necessárias duas importações básicas, descritas logo abaixo. A função (?) `sm` é utilizada dentro da função `smf`, para definir a família da distribuição que será utilizada de acordo com o problema de pesquisa.
+Dentro dos scripts são necessárias duas importações básicas, descritas logo abaixo. A função `sm` é utilizada dentro da função `smf`, para definir a família da distribuição que será utilizada de acordo com o problema de pesquisa.
 
 ```
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
 ```
 
-## Resumo sobre as distribuições
+## Resumo sobre os modelos e suas distribuições
 |_**Modelo de Regressão**_      |_**Características da Variável Dependente (ou o target)**_     |_**Distribuição**_|
 |-------------------------------|---------------------------------------------------------------|------------------|
 |**Linear**                     |Quantitativa                                                   |_Normal_|
@@ -23,6 +23,33 @@ import statsmodels.formula.api as smf
 |**Logística Multinomial**      |Qualitativa com 3+ categorias                                  |_Binomial_|
 |**Poisson**                    |Quantitativa com valores inteiros e não-negativos (contagem)   |_Poisson_|
 |**Binomial Negativo**          |Quantitativa com valores inteiros e não-negativos (contagem)   |_Poisson-Gama_|
+
+## Modelos de Regressão
+
+### Modelo Linear
+Este é o modelo mais simples de todos, normalmente se utiliza OLS/MQO (ordinary least squares/mínimos quadrados ordinários).
+
+#### Formulação
+y = alfa + xb1 + xb2 + ... + xbn
+
+#### Verificações para o modelo
+Após rodar o modelo temos os resultados (_modelo.summary()_). Os pontos importantes são:
+- p-value da variável: utiliza-se estatística T de Student
+
+### Modelo Linear c/ Transformação Box-Cox
+texto
+
+### Modelo Logístico Binário
+texto
+
+### Modelo Logístico Multinomial
+texto
+
+### Modelo Poisson
+texto
+
+### Modelo Binomial Negativo
+texto
 
 
 ### Facilitador para as fórmulas
