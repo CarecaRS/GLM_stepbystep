@@ -31,7 +31,7 @@ TO-DO: faz link de âncoras nos modelos acima com as explicações abaixo
 Este é o modelo mais simples de todos, normalmente se utiliza OLS/MQO (ordinary least squares/mínimos quadrados ordinários).
 
 #### Formulação
-    y = alfa + b*x<sub>1</sub> + b*x<sub>2</sub> + ... + b*x<sub>n</sub>
+y = alfa + b*x<sub>1</sub> + b*x<sub>2</sub> + ... + b*x<sub>n</sub>
 
 #### Verificações para o modelo
 Após rodar o modelo temos os resultados (_modelo.summary()_). Os pontos importantes são:
