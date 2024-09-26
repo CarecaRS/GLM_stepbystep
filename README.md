@@ -217,10 +217,14 @@ Dentro da modelagem logística faz-se notar o conhecimento do constructo tido co
 - z = $a$ + $b$<sub>1</sub>x<sub>1<sub>i</sub></sub> + $b$<sub>2</sub>x<sub>2<sub>i</sub></sub> + ... + $b$<sub>n</sub>x<sub>n<sub>i</sub></sub>
 
 Temos, por consequência, então:
-- ln(p / 1 - p) = z
-- p / 1 - p = e<sup>z</sup>
-- p (1 + e<sup>z</sup> = e<sup>z</sup>
+- ln(p / (1 - p)) = z
+- p / (1 - p) = e<sup>z</sup>
+- p * (1 + e<sup>z</sup>) = e<sup>z</sup>
 
+E, sendo assim, a probabilidade de ocorrência do evento se dá por: 
+- p = e<sup>z</sup>/(1 + e<sup>z</sup>)
+- p = 1 / (1 + e<sup>-z</sup>)  # favor notar o expoente negativo
+- p = 1 / (1 + e<sup>-($a$ + $b$<sub>1</sub>x<sub>1<sub>i</sub></sub> + $b$<sub>2</sub>x<sub>2<sub>i</sub></sub> + ... + $b$<sub>n</sub>x<sub>n<sub>i</sub></sub>)</sup>
 
 
 ```
