@@ -37,7 +37,7 @@ A documentação básica pode ser encontrada no site do próprio pacote clicando
 Este é o modelo mais simples de todos, também chamado de OLS/MQO (ordinary least squares/mínimos quadrados ordinários). É um modelo que funciona muito bem para predição na interpolação dos dados, ou seja, dentro das dimensões mínimas e máximas dos dados em uso. Como característica, queremos que a soma dos erros de cada observação seja igual (ou muito próxima) a zero e a soma dos erros ao quadrado seja a mínima possível.
 
 ### Formulação algébrica e no Python
-y = $\alpha a$ + $\beta b$ x<sub>1</sub> + bx<sub>2</sub> + ... + bx<sub>n</sub>
+y = $a$ + $\beta$ x<sub>1</sub> + bx<sub>2</sub> + ... + bx<sub>n</sub>
 ```
 sm.OLS.from_formula().fit()
 ```
