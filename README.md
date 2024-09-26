@@ -8,7 +8,9 @@ Alguns outros pacotes estatísticos também são utilizados para os diversos dia
 
 Caso algum pacote não esteja instalado na máquina, simplesmente se comanda no terminal instrução instrução semelhante aos exemplos abaixo
 > pip3 install statsmodels
+
 > pip3 install scipy
+
 > pip3 install statstests
 
 Dentro dos scripts (e exclusivamente em relação à modelagem) são necessárias duas importações básicas, descritas logo abaixo. A função `sm` é utilizada dentro da função `smf`, para definir a família da distribuição que será utilizada de acordo com o problema de pesquisa.
