@@ -16,12 +16,13 @@ import statsmodels.formula.api as smf
 
 ## Resumo sobre as distribuições
 |_**Modelo de Regressão**_      |_**Características da Variável Dependente (ou o target)**_     |_**Distribuição**_|
+|-------------------------------|---------------------------------------------------------------|------------------|
 |**Linear**                     |Quantitativa                                                   |_Normal_|
 |**Com transformação Box-Cox**  |Quantitativa                                                   |_Normal após a transformação_|
-|**Logística Binária**       |Qualitativa com **apenas duas categorias**                        |_Bernoulli_|
-|**Logística Multinomial**   |Qualitativa com 3+ categorias                                     |_Binomial_|
-|**Poisson**                 |Quantitativa com valores inteiros e não-negativos (contagem)      |_Poisson_|
-|**Binomial Negativo**       |Quantitativa com valores inteiros e não-negativos (contagem)      |_Poisson-Gama_|
+|**Logística Binária**          |Qualitativa com **apenas duas categorias**                     |_Bernoulli_|
+|**Logística Multinomial**      |Qualitativa com 3+ categorias                                  |_Binomial_|
+|**Poisson**                    |Quantitativa com valores inteiros e não-negativos (contagem)   |_Poisson_|
+|**Binomial Negativo**          |Quantitativa com valores inteiros e não-negativos (contagem)   |_Poisson-Gama_|
 
 
 ### Facilitador para as fórmulas
