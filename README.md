@@ -37,7 +37,7 @@ A documentação básica pode ser encontrada no site do próprio pacote clicando
 Este é o modelo mais simples de todos, também chamado de OLS/MQO (ordinary least squares/mínimos quadrados ordinários). É um modelo que funciona muito bem para predição na interpolação dos dados, ou seja, dentro das dimensões mínimas e máximas dos dados em uso. Como característica, queremos que a soma dos erros de cada observação seja igual (ou muito próxima) a zero e a soma dos erros ao quadrado seja a mínima possível.
 
 ### Formulação algébrica e no Python
-y = $a$ + $\beta$ x<sub>1</sub> + bx<sub>2</sub> + ... + bx<sub>n</sub>
+y = $a$ + $\beta$ x<sub>1</sub> + $\beta$ x<sub>2</sub> + ... + $\beta$ x<sub>n</sub>
 ```
 sm.OLS.from_formula().fit()
 ```
@@ -73,18 +73,18 @@ t = np.sqrt(f)
 ```
 Para cálculo das estatísticas T de cada um dos parâmetros precisa-se saber os graus de liberdade da amostra e também o score T da variável em questão.
 
-TODO: verificar essa seção abaixo
-
-'######
-
-O cálculo do score T se dá por
+O cálculo do z-score (para utilização com a estatística T) se dá por:
 ```
-t_score = (df[param].mean() - U) / (df[param].sd() / np.sqrt(len(df)))
-
-tt = (sm-m)/np.sqrt(sv/float(n))  # t-statistic for mean
-pval = stats.t.sf(np.abs(tt), n-1)*2  # two-sided pvalue = Prob(abs(t)>tt)
+from scipy.stats import zscore
+...
+zscore(df[param])
 ```
-'######
+Também podendo ser calculado manualmente:
+```
+z_scores = (df[param] – df[param].mean()) / np.std(df[param])
+```
+
+Importante notar que este cálculo do z-score foi obtido nas entranhas da internet, a informação aqui contida pode estar equivocada ou incompleta.
 
 Sobre a comprovação do diagnóstico do parâmetro não ser estatisticamente significante quando de uma regressão múltipla, se na forma funcional geral ele já apresenta um p-value acima de 0,05 e se deseja comprovar essa descartabilidade do parâmetro, pode ser realizada uma regressão simples entre o parâmetro em questão e o target, a estatística t novamente vai indicar a não-rejeição de H<sub>0</sub>.
 
@@ -195,7 +195,34 @@ A execução da função acima retorna dois objetos: `y_chapeu` sendo os valores
 Utiliza-se `y_chapeu` como target da forma funcional do modelo em trabalho e roda-se novamente o modelo, refazendo todas as verificações pertinentes.
 
 ## 3. Modelo Logístico Binário
-texto
+Aqui variável target é dicotômica, o resultado será ou uma opção ou outra, tem ou não tem o evento. Por exemplo: no acidente do Titanic, a pessoa sobreviveu (evento) ou pereceu (não-evento); classificação de cogumelos entre não-comestíveis/venenosos (evento) ou comestíveis (não-evento); um arremesso de moedas vai resultar em cara (evento) ou coroa (não-evento). Como todo modelo logístico, retorna sempre uma probabilidade de ocorrer o evento ou o não-evento. A efetiva classificação de cada resultado de cada observação como evento ou não-evento se dá a partir de um _cutoff_, limite de corte que é definido pelo operador.
+
+A distribuição de probabilidades de ocorrência de evento/não-evento da-se por:
+- `p` sendo a probabilidade de ocorrer o evento; e
+- `1 - p` sendo a probabilidade de ocorrer o não-evento.
+
+'Chance' ou, em inglês, 'odds' é uma razão entre as duas probabilidades, que resulta em um número inteiro ou não ou em uma relação de proporções:
+```
+odds = evento / não-evento  # logo:
+odds = p / (1 - p)
+```
+Se, por exemplo, p = 0,80, então temos que:
+```
+odds = p / (1 - p) = 0,80 / 0,20 = 4/1 (também pode ser escrito 4:1, lê-se 'chances de 4 para 1')
+```
+De formulação semelhante à OLS, temos que a forma funcional da logística binária da-se por:
+- ln(chance) = $a$ + $b$<sub>1</sub>x<sub>1<sub>i</sub></sub> + $b$<sub>2</sub>x<sub>2<sub>i</sub></sub> + ... + $b$<sub>n</sub>x<sub>n<sub>i</sub></sub>
+
+Dentro da modelagem logística faz-se notar o conhecimento do constructo tido como logito (z), que é efetivamente toda a parte direita da igualdade da forma funcional acima:
+- z = $a$ + $b$<sub>1</sub>x<sub>1<sub>i</sub></sub> + $b$<sub>2</sub>x<sub>2<sub>i</sub></sub> + ... + $b$<sub>n</sub>x<sub>n<sub>i</sub></sub>
+
+Temos, por consequência, então:
+- ln(p / 1 - p) = z
+- p / 1 - p = e<sup>z</sup>
+- p (1 + e<sup>z</sup> = e<sup>z</sup>
+
+
+
 ```
 sm.LOGIT.from_formula().fit()
 ```
