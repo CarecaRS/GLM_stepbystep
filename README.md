@@ -37,7 +37,7 @@ A documentação básica pode ser encontrada no site do próprio pacote clicando
 Este é o modelo mais simples de todos, também chamado de OLS/MQO (ordinary least squares/mínimos quadrados ordinários). É um modelo que funciona muito bem para predição na interpolação dos dados, ou seja, dentro das dimensões mínimas e máximas dos dados em uso. Como característica, queremos que a soma dos erros de cada observação seja igual (ou muito próxima) a zero e a soma dos erros ao quadrado seja a mínima possível.
 
 ### Formulação algébrica e no Python
-y = $\alpha $ + $\beta $ x<sub>1</sub> + bx<sub>2</sub> + ... + bx<sub>n</sub>
+y = $\alpha a$ + $\beta b$ x<sub>1</sub> + bx<sub>2</sub> + ... + bx<sub>n</sub>
 ```
 sm.OLS.from_formula().fit()
 ```
@@ -48,7 +48,7 @@ Após rodar o modelo temos os resultados com `modelo.summary()`.
 #### Estatística F (para validade ou não do modelo)
 O p-value da estatística dado em `Prob (F-statistic)` no summary.
 - H<sub>0</sub>: se F<sub>calculado</sub> < F<sub>crítico</sub>, então p-value > 0,05, logo b<sub>1</sub> = b<sub>2</sub> = b<sub>3</sub> = ... = b<sub>n</sub> = 0. Deste modo, nenhum beta é estatisticamente significante e o modelo cai por terra, não podendo ser utilizada para fins preditivos.
-- H<sub>1</sub>: se F<sub>calculado</sub> $\ge$ F<sub>crítico</sub>, então p-value <= 0,05, logo pelo menos um beta é diferente de zero e estatisticamente significante;
+- H<sub>1</sub>: se F<sub>calculado</sub> $\ge$ F<sub>crítico</sub>, então p-value $\le$ 0,05, logo pelo menos um beta é diferente de zero e estatisticamente significante;
 
 O valor dessa estatística pode ser calculado conforme disposto abaixo:
 ```
@@ -61,7 +61,7 @@ As mensurações de df_modelo e df_residuos são dadas no summary em `Df Model` 
 #### Estatística T (para validade ou não dos parâmetros)
 O p-value de cada variável é dado no summary (coluna p-value nas descrições dos parâmetros).
   - H<sub>0</sub>: p-value > 0,05, significando que o parâmetro **NÃO é estatisticamente significante**;
-  - H<sub>1</sub>: p-value <= 0,05, significando que o parâmetro **É estatisticamente significante**;
+  - H<sub>1</sub>: p-value $\le$ 0,05, significando que o parâmetro **É estatisticamente significante**;
 
 O valor dessa estatística pode ser calculado conform segue:
 ```
@@ -106,7 +106,7 @@ shapiro_francia(modelo.resid).items()  # .items() utilizado apenas por questões
 ```
 
   - H<sub>0</sub>: p-value > 0,05, significando que a distribuição dos resíduos **NÃO é estatisticamente diferente** de uma distribução normal;
-  - H<sub>1</sub>: p-value <= 0,05, significando que a distribuição dos resíduos **É estatisticamente diferente** (distribuição não aderente à normalidade, sendo necessária utilização de transformação Box-Cox _na variável dependente ou target_ - NORMALIZAÇÃO);
+  - H<sub>1</sub>: p-value $\le$ 0,05, significando que a distribuição dos resíduos **É estatisticamente diferente** (distribuição não aderente à normalidade, sendo necessária utilização de transformação Box-Cox _na variável dependente ou target_ - NORMALIZAÇÃO);
 
 **Particularidade**: se o número de observações for inferior a 30 pode ser utilizado o teste de Shapiro-Wilk:
 ```
@@ -122,7 +122,7 @@ Multicolinearidae pode se dar em função de alguns pontos mais comuns:
 - Utilização de valores defasados em algumas das variáveis explicativas como 'novas explicativas'
 
 Alguma noção de multicolinearidade pode ser obtida através da matriz de correlação entre as variáveis. Dois parâmetros são utilizados para poder se diagnosticar indícios de multicolinearidade:
-- Tolerance: `1 - R<sup>2</sup><sub>p</sub>` (onde `<sub>p</sub>` refere-se a cada uma das variáveis existentes no modelo - se 500 variáveis, então 500 valores de Tolerance)
+- Tolerance: 1 - R<sup>2</sup><sub>p</sub> (onde <sub>p</sub> refere-se a cada uma das variáveis existentes no modelo - se 500 variáveis, então 500 valores de Tolerance)
 - VIF: `1 / Tolerance` (Variance Inflation Factor)
 
 Para um cálculo eficiente da VIF utiliza-se o pacote `statsmodels`:
@@ -173,7 +173,7 @@ def breusch_pagan_test(modelo):
 ```
 Em função do p_value obtido pelo teste de Breusch-Pagan, temos que
   - H<sub>0</sub>: p-value > 0,05, indica homocedasticidade (ausência de heterocedasticidade);
-  - H<sub>1</sub>: p-value <= 0,05, indica presença de heterocedasticidade.
+  - H<sub>1</sub>: p-value $\le$ 0,05, indica presença de heterocedasticidade.
 
 
 ### Informações adicionais
