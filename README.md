@@ -25,9 +25,9 @@ A documentação básica pode ser encontrada no site do próprio pacote clicando
 |_**Modelo de Regressão**_      |_**Características da Variável Dependente (ou o target)**_     |_**Distribuição**_|
 |-------------------------------|---------------------------------------------------------------|------------------|
 |[**Linear**](#1-modelo-linear)                     |Quantitativa                                                   |_Normal_|
-|[**Com transformação Box-Cox**](#2-modelo-linear-c-transformao-boxcox-(modelo-no-linear))  |Quantitativa                                                   |_Normal após a transformação_|
-|[**Logística Binária**](#3-modelo-logstico-binrio)          |Qualitativa com **apenas duas categorias**                     |_Bernoulli_|
-|[**Logística Multinomial**](#4-modelo-logstico-multinomial)      |Qualitativa com 3+ categorias                                  |_Binomial_|
+|[**Com transformação Box-Cox**](#2-modelo-linear-c-transformacao-box-cox-(modelo-nao-linear))  |Quantitativa                                                   |_Normal após a transformação_|
+|[**Logística Binária**](#3-modelo-logistico-binario)          |Qualitativa com **apenas duas categorias**                     |_Bernoulli_|
+|[**Logística Multinomial**](#4-modelo-logistico-multinomial)      |Qualitativa com 3+ categorias                                  |_Binomial_|
 |[**Poisson**](#5-modelo-poisson) / [**Zero-Inflated Poisson**](#7-modelo-binomial-zero-inflated-poisson)                    |Quantitativa com valores inteiros e não-negativos (contagem)   |_Poisson_|
 |[**Binomial Negativo**](#6-modelo-binomial-negativo) / [**Zero-Inflated Negative Binomial Poisson**](#8-modelo-binomial-negativo-zero-inflated-poisson)          |Quantitativa com valores inteiros e não-negativos (contagem)   |_Poisson-Gama_|
 
