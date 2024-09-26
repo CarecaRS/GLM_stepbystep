@@ -210,8 +210,12 @@ Se, por exemplo, p = 0,80, então temos que:
 ```
 odds = p / (1 - p) = 0,80 / 0,20 = 4/1 (também pode ser escrito 4:1, lê-se 'chances de 4 para 1')
 ```
-De formulação semelhante à OLS, temos que a forma funcional da logística binária da-se por:
-- ln(chance) = $a$ + $b$<sub>1</sub>x<sub>1<sub>i</sub></sub> + $b$<sub>2</sub>x<sub>2<sub>i</sub></sub> + ... + $b$<sub>n</sub>x<sub>n<sub>i</sub></sub>
+A estimação dos parâmetros é realizada através de um processo iterativo para maximizar o acerto da probabilidade de ocorrência de um evento à sua real ocorrência (Método de Máxima Verossimilhança). Em razão desse raciocínio, os resultados definidos para a variável target estarão sempre entre 0 (evento tende a não acontecer) e 1 (evento tende a acontecer com certeza). A análise de ajuste do modelo utiliza testes de significância dos parâmetros e vale-se da matriz de confusão dos resultados obtidos frente aos resultados reais.
+
+### Formulação algébrica e no Python
+De formulação semelhante à OLS, temos que a forma funcional da logística binária dá-se por:
+
+ln(chance) = $a$ + $b$<sub>1</sub>x<sub>1<sub>i</sub></sub> + $b$<sub>2</sub>x<sub>2<sub>i</sub></sub> + ... + $b$<sub>n</sub>x<sub>n<sub>i</sub></sub>
 
 Dentro da modelagem logística faz-se notar o conhecimento do constructo tido como logito (z), que é efetivamente toda a parte direita da igualdade da forma funcional acima:
 - z = $a$ + $b$<sub>1</sub>x<sub>1<sub>i</sub></sub> + $b$<sub>2</sub>x<sub>2<sub>i</sub></sub> + ... + $b$<sub>n</sub>x<sub>n<sub>i</sub></sub>
@@ -224,12 +228,36 @@ Temos, por consequência, então:
 E, sendo assim, a probabilidade de ocorrência do evento se dá por: 
 - p = e<sup>z</sup>/(1 + e<sup>z</sup>)
 - p = 1 / (1 + e<sup>-z</sup>)  # favor notar o expoente negativo
-- p = 1 / (1 + e<sup>-($a$ + $b$<sub>1</sub>x<sub>1<sub>i</sub></sub> + $b$<sub>2</sub>x<sub>2<sub>i</sub></sub> + ... + $b$<sub>n</sub>x<sub>n<sub>i</sub></sub>)</sup>
+- p = 1 / (1 + e<sup>-($a$ + $b$<sub>1</sub>x<sub>1i</sub> + $b$<sub>2</sub>x<sub>2i</sub> + ... + $b$<sub>n</sub>x<sub>ni</sub>)</sup>)
 
+No Python (ambos códigos resultam em respostas iguais):
+```
+modelo = smf.glm(formula='target ~ feature1 + feature2', dataset=df,
+                 family=sm.families.Binomial()).fit()
 
+modelo = sm.Logit.from_formula('target ~ feature1 + feature2', data=df).fit()
 ```
-sm.LOGIT.from_formula().fit()
-```
+Da mesma forma que o modelo OLS, o modelo calculado com a expressão acima também possui o atributo `.summary()` para a consulta aos resultados em forma tabulada, onde constam as informações sobre os coeficientes, log-likelihood, estatísticas Z, etc.
+
+Nota importante sobre a estatística Z citada acima: Z é a distribuição normal padrão, a estatística t de Student serve para os modelos gaussianos, para os demais modelos dentro do guarda-chuvas dos GLM utiliza-se a estatística Z de Wald.
+
+### Verificações para o modelo
+Após rodar o modelo temos os resultados com `modelo.summary()`, conforme citado acima.
+
+#### Cálculo do chi<sup>2</sub> (para validade ou não do modelo)
+Na modelagem através de `sm.logit.from_formula` o summary retorna também a informação LLR (log-likelihood ratio), equivalente ao **p-value** da estatística F no modelo OLS, contudo aqui é um chi<sup>2</sup> por se tratar de target qualitativo.
+
+O primieiro passo é rodar um modelo nulo (sem betas, apenas com o alfa). Depois verifica-se o incremento no loglike quando se altera do modelo nulo para o modelo funcional. Se o incremento do loglike for estatisticamente significante pelo menos um beta será diferente de zero.
+> modelo_nulo = sm.Logit.from_formula('target ~ 1', data=df).fit()
+
+Os valores dos loglikes podem ser obtidos através do atributo `.llf` de cada modelo, por exemplo:
+> modelo_nulo.llf
+
+O cálculo do chi<sup>2</sup> é realizado conforme segue abaixo.
+> $\chi$<sup>2</sup> = -2 * (LL<sub>0</sub> - LL<sub>m</sub>
+
+onde LL<sub>0</sub> é o loglike do modelo nulo e LL<sub>m</sub> é o loglike do modelo estimado.
+
 
 ## 4. Modelo Logístico Multinomial
 texto
