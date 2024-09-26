@@ -26,19 +26,18 @@ A documentação básica pode ser encontrada no site do próprio pacote clicando
 |-------------------------------|---------------------------------------------------------------|------------------|
 |[**Linear**](#1-modelo-linear)                     |Quantitativa                                                   |_Normal_|
 |[**Com transformação Box-Cox**](#2-modelo-linear-com-transformação-box-cox)  |Quantitativa                                                   |_Normal após a transformação_|
-|[**Logística Binária**](#3-modelo-logístico-binário)          |Qualitativa com **apenas duas categorias**                     |_Bernoulli_|
+|[**Logística Binária**](#3-modelo-logístico-binário)          |Qualitativa com apenas duas categorias                     |_Bernoulli_|
 |[**Logística Multinomial**](#4-modelo-logístico-multinomial)      |Qualitativa com 3+ categorias                                  |_Binomial_|
 |[**Poisson**](#5-modelo-poisson) / [**Zero-Inflated Poisson**](#7-modelo-binomial-zero-inflated-poisson)                    |Quantitativa com valores inteiros e não-negativos (contagem)   |_Poisson_|
 |[**Binomial Negativo**](#6-modelo-binomial-negativo) / [**Zero-Inflated Negative Binomial Poisson**](#8-modelo-binomial-negativo-zero-inflated-poisson)          |Quantitativa com valores inteiros e não-negativos (contagem)   |_Poisson-Gama_|
 
 # Modelos de Regressão
-TO-DO: faz link de âncoras nos modelos acima com as explicações abaixo
 
 ## 1. Modelo Linear
 Este é o modelo mais simples de todos, também chamado de OLS/MQO (ordinary least squares/mínimos quadrados ordinários). É um modelo que funciona muito bem para predição na interpolação dos dados, ou seja, dentro das dimensões mínimas e máximas dos dados em uso. Como característica, queremos que a soma dos erros de cada observação seja igual (ou muito próxima) a zero e a soma dos erros ao quadrado seja a mínima possível.
 
 ### Formulação algébrica e no Python
-y = alfa + b*x<sub>1</sub> + b*x<sub>2</sub> + ... + b*x<sub>n</sub>
+y = $\alpha A$ + $\beta$x<sub>1</sub> + bx<sub>2</sub> + ... + bx<sub>n</sub>
 ```
 sm.OLS.from_formula().fit()
 ```
