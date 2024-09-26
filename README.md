@@ -24,7 +24,7 @@ A documentação básica pode ser encontrada no site do próprio pacote clicando
 ## Resumo sobre os modelos e suas distribuições
 |_**Modelo de Regressão**_      |_**Características da Variável Dependente (ou o target)**_     |_**Distribuição**_|
 |-------------------------------|---------------------------------------------------------------|------------------|
-|**Linear**                     |Quantitativa                                                   |_Normal_|
+|[**Linear**](#1-modelo-linear)                     |Quantitativa                                                   |_Normal_|
 |**Com transformação Box-Cox**  |Quantitativa                                                   |_Normal após a transformação_|
 |**Logística Binária**          |Qualitativa com **apenas duas categorias**                     |_Bernoulli_|
 |**Logística Multinomial**      |Qualitativa com 3+ categorias                                  |_Binomial_|
@@ -247,7 +247,6 @@ Os modelos desenvolvidos a partir de GLM/GLMM possuem atributos que são disponi
 **Nota:** os valores pertinentes a cada observação, se aplicável, podem ser visualizados individualmente com utilização de `.iloc[]`
 
 ## Facilitador para as fórmulas
-Código para o script:
 ```
 lista_colunas = list(df.drop(['dropa aqui as não-desejáveis e/ou a target'], axis=1)),
 formula_modelo = ' + '.join(lista_colunas)
