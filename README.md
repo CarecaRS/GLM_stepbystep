@@ -25,7 +25,7 @@ A documentação básica pode ser encontrada no site do próprio pacote clicando
 |_**Modelo de Regressão**_      |_**Características da Variável Dependente (ou o target)**_     |_**Distribuição**_|
 |-------------------------------|---------------------------------------------------------------|------------------|
 |[**Linear**](#1-modelo-linear)                     |Quantitativa                                                   |_Normal_|
-|[**Com transformação Box-Cox**](#2-modelo-linear-com-transformação-box-cox-(modelo-não-linear))  |Quantitativa                                                   |_Normal após a transformação_|
+|[**Com transformação Box-Cox**](#2-modelo-linear-com-transformação-box-cox)  |Quantitativa                                                   |_Normal após a transformação_|
 |[**Logística Binária**](#3-modelo-logístico-binário)          |Qualitativa com **apenas duas categorias**                     |_Bernoulli_|
 |[**Logística Multinomial**](#4-modelo-logístico-multinomial)      |Qualitativa com 3+ categorias                                  |_Binomial_|
 |[**Poisson**](#5-modelo-poisson) / [**Zero-Inflated Poisson**](#7-modelo-binomial-zero-inflated-poisson)                    |Quantitativa com valores inteiros e não-negativos (contagem)   |_Poisson_|
@@ -186,7 +186,7 @@ O parâmetro alpha **sempre** se mantém na equação. Se porventura esse parâm
 
 Para comparações de modelos OLS se utiliza o R<sup>2</sup><sub>adjusted</sub>, que leva em consideração as dimensões de cada modelo.
 
-## 2. Modelo Linear com Transformação Box-Cox (modelo não-linear)
+## 2. Modelo Linear com Transformação Box-Cox
 A transformação se dá com a utilização do pacote `scipy` e na função descrita abaixo:
 ```
 from scipy.stats import boxcox
