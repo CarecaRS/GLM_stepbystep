@@ -31,8 +31,6 @@ A documentação básica pode ser encontrada no site do próprio pacote clicando
 |[**Poisson**](#5-modelo-poisson) / [**Zero-Inflated Poisson**](#7-modelo-binomial-zero-inflated-poisson)                    |Quantitativa com valores inteiros e não-negativos (contagem)   |_Poisson_|
 |[**Binomial Negativo**](#6-modelo-binomial-negativo) / [**Zero-Inflated Negative Binomial Poisson**](#8-modelo-binomial-negativo-zero-inflated-poisson)          |Quantitativa com valores inteiros e não-negativos (contagem)   |_Poisson-Gama_|
 
-## 5. Modelo Poisson
-Consideração importante: nesse documento explicativo sempre se utiliza intervalo de confiança de 95%. Caso seja necessária alteração na prática, prestar atenção nisso.
 # Modelos de Regressão
 TO-DO: faz link de âncoras nos modelos acima com as explicações abaixo
 
