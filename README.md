@@ -4,8 +4,12 @@ Este é um resumo básico de utilização de modelos GLM/GLMM, criado para refer
 ## Sobre os pacotes
 Em GLM trabalha-se com o pacote `statsmodels`. Com ele sozinho é possível realizar todos os modelos GLM/GLMM estudados ao longo do MBA em Data Science & Analytics da USP (da turma 241 ao menos).
 
-Se o pacote não está instalado na máquina, simplesmente se comanda no terminal a instrução abaixo
+Alguns outros pacotes estatísticos também são utilizados para os diversos diagnósticos a serem feitos de acordo com cada modelo estimado, como por exemplo o pacote `scipy` e o pacote `statstests`.
+
+Caso algum pacote não esteja instalado na máquina, simplesmente se comanda no terminal instrução instrução semelhante aos exemplos abaixo
 > pip3 install statsmodels
+> pip3 install scipy
+> pip3 install statstests
 
 Dentro dos scripts (e exclusivamente em relação à modelagem) são necessárias duas importações básicas, descritas logo abaixo. A função `sm` é utilizada dentro da função `smf`, para definir a família da distribuição que será utilizada de acordo com o problema de pesquisa.
 ```
@@ -26,24 +30,24 @@ A documentação básica pode ser encontrada no site do próprio pacote clicando
 |**Binomial Negativo / Zero-Inflated Negative Binomial Poisson**          |Quantitativa com valores inteiros e não-negativos (contagem)   |_Poisson-Gama_|
 
 Consideração importante: nesse documento explicativo sempre se utiliza intervalo de confiança de 95%. Caso seja necessária alteração na prática, prestar atenção nisso.
-## Modelos de Regressão
+# Modelos de Regressão
 TO-DO: faz link de âncoras nos modelos acima com as explicações abaixo
 
-### 1. Modelo Linear
+## 1. Modelo Linear
 Este é o modelo mais simples de todos, também chamado de OLS/MQO (ordinary least squares/mínimos quadrados ordinários). É um modelo que funciona muito bem para predição na interpolação dos dados, ou seja, dentro das dimensões mínimas e máximas dos dados em uso. Como característica, queremos que a soma dos erros de cada observação seja igual (ou muito próxima) a zero e a soma dos erros ao quadrado seja a mínima possível.
 
-#### Formulação algébrica e no Python
+### Formulação algébrica e no Python
 y = alfa + b*x<sub>1</sub> + b*x<sub>2</sub> + ... + b*x<sub>n</sub>
 ```
 sm.OLS.from_formula().fit()
 ```
 
-#### Verificações para o modelo
+### Verificações para o modelo
 Após rodar o modelo temos os resultados com `modelo.summary()`.
 
-##### Estatística F (para validade ou não do modelo)
+#### Estatística F (para validade ou não do modelo)
 O p-value da estatística dado em `Prob (F-statistic)` no summary.
-  - H<sub>0</sub>: se F<sub>calculado</sub> < F<sub>crítico</sub>, então p-value > 0,05, logo b<sub>1</sub> = b<sub>2</sub> = b<sub>3</sub> = ... = b<sub>n</sub> = 0, logo nenhum beta é estatisticamente significante e o modelo cai por terra, não podendo ser utilizada para fins preditivos.
+  - H<sub>0</sub>: se F<sub>calculado</sub> < F<sub>crítico</sub>, então p-value > 0,05, logo b<sub>1</sub> = b<sub>2</sub> = b<sub>3</sub> = ... = b<sub>n</sub> = 0. Deste modo, nenhum beta é estatisticamente significante e o modelo cai por terra, não podendo ser utilizada para fins preditivos.
   - H<sub>1</sub>: se F<sub>calculado</sub> >= F<sub>crítico</sub>, então p-value <= 0,05, logo pelo menos um beta é diferente de zero e estatisticamente significante;
 
 O valor dessa estatística pode ser calculado conforme disposto abaixo:
@@ -54,7 +58,7 @@ f.ppf(0.95, df_modelo, df_residuos)
 ```
 As mensurações de df_modelo e df_residuos são dadas no summary em `Df Model` e `Df Residuals`, respectivamente. Podendo ser obtidas com os códigos `modelo.df_model` e `modelo.df_residuals`, respectivamente.
 
-##### Estatística T (para validade ou não dos parâmetros)
+#### Estatística T (para validade ou não dos parâmetros)
 O p-value de cada variável é dado no summary (coluna p-value nas descrições dos parâmetros).
   - H<sub>0</sub>: p-value > 0,05, significando que o parâmetro **NÃO é estatisticamente significante**;
   - H<sub>1</sub>: p-value <= 0,05, significando que o parâmetro **É estatisticamente significante**;
@@ -72,6 +76,7 @@ Para cálculo das estatísticas T de cada um dos parâmetros precisa-se saber os
 TODO: verificar essa seção abaixo
 
 '######
+
 O cálculo do score T se dá por
 ```
 t_score = (df[param].mean() - U) / (df[param].sd() / np.sqrt(len(df)))
@@ -92,7 +97,7 @@ from statstests.process import stepwise
 stepwise(modelo, pvalue_limit=0.05)
 ```
 
-##### Teste de verificação de aderência dos resíduos à normalidade (Shapiro-Francia)
+#### Teste de verificação de aderência dos resíduos à normalidade (Shapiro-Francia)
 Necessária a importação do pacote `statstests`:
 ```
 from statstests.tests import shapiro_francia
@@ -110,7 +115,7 @@ from scipy.stats import shapiro
 shapiro(modelo.resid)
 ```
 
-##### Diagnóstico de multicolinearidade
+#### Diagnóstico de multicolinearidade
 Multicolinearidae pode se dar em função de alguns pontos mais comuns:
 - Existência de variáevis que apresentam a mesma tendência durante alguns períodos, em decorrência da seleção de uma amostra que inclua apenas observaçẽos referentes a estes períodos específicos;
 - Utilização de amostras com reduzido número de observações;
@@ -134,7 +139,7 @@ Isso pode gerar a dúvida "e o que é VIF alto ou baixo?". Alguns autores utiliz
 
 Também pode ser indicativo de multicolinearidade a existência de sinais inesperados dos coeficientes dos parâmetros e testes t não significantes com teste F significante.
 
-##### Diagnóstico de heterocedasticidade
+#### Diagnóstico de heterocedasticidade
 Concetualmente, a existência de heterocedasticidade indica a omissão de feature/variável relevente para a explicação do comportamento da variável target.
 
 Graficamente, a dispersão dos dados na relação target e features lembra a figura de um cone, que pode ser aberto tanto para cima como para baixo.
@@ -171,14 +176,14 @@ Em função do p_value obtido pelo teste de Breusch-Pagan, temos que
   - H<sub>1</sub>: p-value <= 0,05, indica presença de heterocedasticidade.
 
 
-#### Informações adicionais
+### Informações adicionais
 É importante ressaltar que um modelo sobre um banco de dados horizontalizado (num features > num observações) não consegue explicar apropriadamente o comportamento desse banco de dados em função dessa discrepância.
 
 O parâmetro alpha **sempre** se mantém na equação. Se porventura esse parâmetro der estatisticamente não significante é sinal apenas de pouca quantidade de observações no banco de dados. Logo, em se aumentando a quantidade de informações o parâmetro passa a ser significativo.
 
 Para comparações de modelos OLS se utiliza o R<sup>2</sup><sub>adjusted</sub>, que leva em consideração as dimensões de cada modelo.
 
-### 2. Modelo Linear c/ Transformação Box-Cox (modelo não-linear)
+## 2. Modelo Linear c/ Transformação Box-Cox (modelo não-linear)
 A transformação se dá com a utilização do pacote `scipy` e na função descrita abaixo:
 ```
 from scipy.stats import boxcox
@@ -189,46 +194,46 @@ A execução da função acima retorna dois objetos: `y_chapeu` sendo os valores
 
 Utiliza-se `y_chapeu` como target da forma funcional do modelo em trabalho e roda-se novamente o modelo, refazendo todas as verificações pertinentes.
 
-### 3. Modelo Logístico Binário
+## 3. Modelo Logístico Binário
 texto
 ```
 sm.LOGIT.from_formula().fit()
 ```
 
-### 4. Modelo Logístico Multinomial
+## 4. Modelo Logístico Multinomial
 texto
 ```
 MNLogit()
 sm.discrete.discrete_model().fit()
 ```
 
-### 5. Modelo Poisson
+## 5. Modelo Poisson
 texto
 ```
 smf.glm(..., family=sm.families.Poisson()).fit()
 sm.Poisson.from_formula().fit()
 ```
 
-### 6. Modelo Binomial Negativo
+## 6. Modelo Binomial Negativo
 texto
 ```
 smf.glm(..., family=sm.families.NegativeBinomial(alpha=N).fit()
 sm.NegativeBinomial.from_formula().fit()
 ```
 
-### 7. Modelo Binomial Zero-Inflated Poisson
+## 7. Modelo Binomial Zero-Inflated Poisson
 texto
 ```
 sm.ZeroInflatedPoisson().fit()
 ```
 
-### 8. Modelo Binomial Negativo Zero-Inflated Poisson
+## 8. Modelo Binomial Negativo Zero-Inflated Poisson
 texto
 ```
 sm.ZeroInflatedNegativeBinomialP().fit()
 ```
 
-### Propriedades comuns aos modelos GLM/GLMM
+# Propriedades comuns aos modelos GLM/GLMM
 Os modelos desenvolvidos a partir de GLM/GLMM possuem atributos que são disponibilizados de forma agrupada através da utilização de `.summary()` e que podem ser resgatados individualmente através de códigos no script. Alguns exemplos seguem abaixo.
 - Fitted values (valores estimados) do modelo: `modelo.fittedvalues`
 - Parãmetros (alpha e betas) do modelo: `modelo.params`
@@ -239,7 +244,7 @@ Os modelos desenvolvidos a partir de GLM/GLMM possuem atributos que são disponi
 - Resíduos do modelo: `modelo.resid`
 **Nota:** os valores pertinentes a cada observação, se aplicável, podem ser visualizados individualmente com utilização de `.iloc[]`
 
-### Facilitador para as fórmulas
+## Facilitador para as fórmulas
 Código para o script:
 ```
 lista_colunas = list(df.drop(['dropa aqui as não-desejáveis e/ou a target'], axis=1)),
