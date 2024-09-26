@@ -37,7 +37,7 @@ A documentação básica pode ser encontrada no site do próprio pacote clicando
 Este é o modelo mais simples de todos, também chamado de OLS/MQO (ordinary least squares/mínimos quadrados ordinários). É um modelo que funciona muito bem para predição na interpolação dos dados, ou seja, dentro das dimensões mínimas e máximas dos dados em uso. Como característica, queremos que a soma dos erros de cada observação seja igual (ou muito próxima) a zero e a soma dos erros ao quadrado seja a mínima possível.
 
 ### Formulação algébrica e no Python
-y = $\alpha a$ + $\beta b$x<sub>1</sub> + bx<sub>2</sub> + ... + bx<sub>n</sub>
+y = $\alpha $ + $\beta $ x<sub>1</sub> + bx<sub>2</sub> + ... + bx<sub>n</sub>
 ```
 sm.OLS.from_formula().fit()
 ```
@@ -47,8 +47,8 @@ Após rodar o modelo temos os resultados com `modelo.summary()`.
 
 #### Estatística F (para validade ou não do modelo)
 O p-value da estatística dado em `Prob (F-statistic)` no summary.
-  - H<sub>0</sub>: se F<sub>calculado</sub> < F<sub>crítico</sub>, então p-value > 0,05, logo b<sub>1</sub> = b<sub>2</sub> = b<sub>3</sub> = ... = b<sub>n</sub> = 0. Deste modo, nenhum beta é estatisticamente significante e o modelo cai por terra, não podendo ser utilizada para fins preditivos.
-      - H<sub>1</sub>: se F<sub>calculado</sub> $\ge$ F<sub>crítico</sub>, então p-value <= 0,05, logo pelo menos um beta é diferente de zero e estatisticamente significante;
+- H<sub>0</sub>: se F<sub>calculado</sub> < F<sub>crítico</sub>, então p-value > 0,05, logo b<sub>1</sub> = b<sub>2</sub> = b<sub>3</sub> = ... = b<sub>n</sub> = 0. Deste modo, nenhum beta é estatisticamente significante e o modelo cai por terra, não podendo ser utilizada para fins preditivos.
+- H<sub>1</sub>: se F<sub>calculado</sub> $\ge$ F<sub>crítico</sub>, então p-value <= 0,05, logo pelo menos um beta é diferente de zero e estatisticamente significante;
 
 O valor dessa estatística pode ser calculado conforme disposto abaixo:
 ```
