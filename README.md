@@ -26,11 +26,12 @@ A documentação básica pode ser encontrada no site do próprio pacote clicando
 |-------------------------------|---------------------------------------------------------------|------------------|
 |[**Linear**](#1-modelo-linear)                     |Quantitativa                                                   |_Normal_|
 |[**Com transformação Box-Cox**](#2-modelo-linear-c-transformao-boxcox-(modelo-no-linear))  |Quantitativa                                                   |_Normal após a transformação_|
-|[**Logística Binária**]          |Qualitativa com **apenas duas categorias**                     |_Bernoulli_|
-|[**Logística Multinomial**]      |Qualitativa com 3+ categorias                                  |_Binomial_|
-|[**Poisson / Zero-Inflated Poisson**]                    |Quantitativa com valores inteiros e não-negativos (contagem)   |_Poisson_|
-|[**Binomial Negativo / Zero-Inflated Negative Binomial Poisson**]          |Quantitativa com valores inteiros e não-negativos (contagem)   |_Poisson-Gama_|
+|[**Logística Binária**](#3-modelo-logstico-binrio)          |Qualitativa com **apenas duas categorias**                     |_Bernoulli_|
+|[**Logística Multinomial**](#4-modelo-logstico-multinomial)      |Qualitativa com 3+ categorias                                  |_Binomial_|
+|[**Poisson**](#5-modelo-poisson) / [**Zero-Inflated Poisson**](#7-modelo-binomial-zero-inflated-poisson)                    |Quantitativa com valores inteiros e não-negativos (contagem)   |_Poisson_|
+|[**Binomial Negativo**](#6-modelo-binomial-negativo) / [**Zero-Inflated Negative Binomial Poisson**](#8-modelo-binomial-negativo-zero-inflated-poisson)          |Quantitativa com valores inteiros e não-negativos (contagem)   |_Poisson-Gama_|
 
+## 5. Modelo Poisson
 Consideração importante: nesse documento explicativo sempre se utiliza intervalo de confiança de 95%. Caso seja necessária alteração na prática, prestar atenção nisso.
 # Modelos de Regressão
 TO-DO: faz link de âncoras nos modelos acima com as explicações abaixo
