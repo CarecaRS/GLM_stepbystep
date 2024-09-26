@@ -27,15 +27,18 @@ import statsmodels.formula.api as smf
 ## Modelos de Regressão
 TO-DO: faz link de âncoras nos modelos acima com as explicações abaixo
 
-1. Modelo Linear
+### 1. Modelo Linear
 Este é o modelo mais simples de todos, normalmente se utiliza OLS/MQO (ordinary least squares/mínimos quadrados ordinários).
 
-_ Formulação
-y = alfa + xb1 + xb2 + ... + xbn
+#### Formulação
+    y = alfa + b*x<sub>1</sub> + b*x<sub>2</sub> + ... + b*x<sub>n</sub>
 
-  _ Verificações para o modelo
+#### Verificações para o modelo
 Após rodar o modelo temos os resultados (_modelo.summary()_). Os pontos importantes são:
 - p-value da variável: utiliza-se estatística T de Student
+
+
+
 
 ### Modelo Linear c/ Transformação Box-Cox
 texto
