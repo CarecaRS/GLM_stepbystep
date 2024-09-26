@@ -21,8 +21,8 @@ import statsmodels.formula.api as smf
 |**Com transformação Box-Cox**  |Quantitativa                                                   |_Normal após a transformação_|
 |**Logística Binária**          |Qualitativa com **apenas duas categorias**                     |_Bernoulli_|
 |**Logística Multinomial**      |Qualitativa com 3+ categorias                                  |_Binomial_|
-|**Poisson**                    |Quantitativa com valores inteiros e não-negativos (contagem)   |_Poisson_|
-|**Binomial Negativo**          |Quantitativa com valores inteiros e não-negativos (contagem)   |_Poisson-Gama_|
+|**Poisson/Zero-Inflated Poisson**                    |Quantitativa com valores inteiros e não-negativos (contagem)   |_Poisson_|
+|**Binomial Negativo/Zero-Inflated Negative Binomial Poisson**          |Quantitativa com valores inteiros e não-negativos (contagem)   |_Poisson-Gama_|
 
 ## Modelos de Regressão
 TO-DO: faz link de âncoras nos modelos acima com as explicações abaixo
@@ -32,6 +32,9 @@ Este é o modelo mais simples de todos, normalmente se utiliza OLS/MQO (ordinary
 
 #### Formulação
 y = alfa + b*x<sub>1</sub> + b*x<sub>2</sub> + ... + b*x<sub>n</sub>
+```
+sm.OLS.from_formula()
+```
 
 #### Verificações para o modelo
 Após rodar o modelo temos os resultados (_modelo.summary()_). Os pontos importantes são:
@@ -40,20 +43,48 @@ Após rodar o modelo temos os resultados (_modelo.summary()_). Os pontos importa
 
 
 
-### Modelo Linear c/ Transformação Box-Cox
-texto
+### 2. Modelo Linear c/ Transformação Box-Cox
+A transformação se dá assim e assado, a regressão utiliza a mesma formulação do Modelo Linear
 
-### Modelo Logístico Binário
-texto
 
-### Modelo Logístico Multinomial
+### 3. Modelo Logístico Binário
 texto
+```
+sm.LOGIT.from_formula()
+```
 
-### Modelo Poisson
+### 4. Modelo Logístico Multinomial
 texto
+```
+MNLogit()
+sm.discrete.discrete_model()
+```
 
-### Modelo Binomial Negativo
+### 5. Modelo Poisson
 texto
+```
+smf.glm(..., family=sm.families.Poisson())
+sm.Poisson.from_formula()
+```
+
+### 6. Modelo Binomial Negativo
+texto
+```
+smf.glm(..., family=sm.families.NegativeBinomial(alpha=N)
+sm.NegativeBinomial.from_formula()
+```
+
+### 7. Modelo Binomial Negativo Zero-Inflated Poisson
+texto
+```
+sm.ZeroInflatedPoisson()
+```
+
+### 8. Modelo Binomial Negativo
+texto
+```
+sm.ZeroInflatedNegativeBinomialP()
+```
 
 
 ### Facilitador para as fórmulas
