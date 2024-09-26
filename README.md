@@ -13,26 +13,6 @@ import statsmodels.api as sm
 import statsmodels.formula.api as smf
 ```
 
-Para cálculos adicionais, caso necessário, como por exemplo estatística F ou estatística T, é utilizado o pacote `scipy` e que deve ser importado no início do script.
-
-- Para a estatística F de Fischer (ou Snedecor):
-```
-from scipy.stats import f
-...
-f.ppf(0.95, df_modelo, df_residuos)
-```
-As mensurações de df_modelo e df_residuos são dadas no summary em `Df Model` e `Df Residuals`, respectivamente. Podendo ser obtidas com os códigos `modelo.df_model` e `modelo.df_residuals`, respectivamente.
-
-- Para a estatística T de Student:
-```
-from scipy.stats import t
-```
-Se a regressão for uma regressão simples (apenas um parâmetro), então `t` é calculado simplesmente como a raiz quadrada da estatística F, com o auxílio do `numpy`:
-```
-t = np.sqrt(f)
-```
-
-
 A documentação básica pode ser encontrada no site do próprio pacote clicando [aqui](https://www.statsmodels.org/stable/glm.html).
 
 ## Resumo sobre os modelos e suas distribuições
@@ -45,6 +25,7 @@ A documentação básica pode ser encontrada no site do próprio pacote clicando
 |**Poisson / Zero-Inflated Poisson**                    |Quantitativa com valores inteiros e não-negativos (contagem)   |_Poisson_|
 |**Binomial Negativo / Zero-Inflated Negative Binomial Poisson**          |Quantitativa com valores inteiros e não-negativos (contagem)   |_Poisson-Gama_|
 
+Consideração importante: nesse documento explicativo sempre se utiliza intervalo de confiança de 95%. Caso seja necessária alteração na prática, prestar atenção nisso.
 ## Modelos de Regressão
 TO-DO: faz link de âncoras nos modelos acima com as explicações abaixo
 
@@ -62,23 +43,76 @@ Após rodar o modelo temos os resultados com `modelo.summary()`.
 
 ##### Estatística F (para validade ou não do modelo)
 O p-value da estatística dado em `Prob (F-statistic)` no summary.
-  - Se F<sub>calculado</sub> >= F<sub>crítico</sub>, então p-value <= 0,05, logo pelo menos um beta é diferente de zero e estatisticamente significante;
-  - Se F<sub>calculado</sub> < F<sub>crítico</sub>, então p-value > 0,05, logo b<sub>1</sub> = b<sub>2</sub> = b<sub>3</sub> = ... = b<sub>n</sub> = 0, logo nenhum beta é estatisticamente significante e o modelo cai por terra, não podendo ser utilizada para fins preditivos.
+  - H<sub>0</sub>: se F<sub>calculado</sub> < F<sub>crítico</sub>, então p-value > 0,05, logo b<sub>1</sub> = b<sub>2</sub> = b<sub>3</sub> = ... = b<sub>n</sub> = 0, logo nenhum beta é estatisticamente significante e o modelo cai por terra, não podendo ser utilizada para fins preditivos.
+  - H<sub>1</sub>: se F<sub>calculado</sub> >= F<sub>crítico</sub>, então p-value <= 0,05, logo pelo menos um beta é diferente de zero e estatisticamente significante;
 
-O valor dessa estatística pode ser calculado por ABCDE.
+O valor dessa estatística pode ser calculado conforme disposto abaixo:
+```
+from scipy.stats import f
+...
+f.ppf(0.95, df_modelo, df_residuos)
+```
+As mensurações de df_modelo e df_residuos são dadas no summary em `Df Model` e `Df Residuals`, respectivamente. Podendo ser obtidas com os códigos `modelo.df_model` e `modelo.df_residuals`, respectivamente.
 
 ##### Estatística T (para validade ou não dos parâmetros)
 O p-value de cada variável é dado no summary (coluna p-value nas descrições dos parâmetros).
   - H<sub>0</sub>: p-value > 0,05, significando que o parâmetro **NÃO é estatisticamente significante**;
   - H<sub>1</sub>: p-value <= 0,05, significando que o parâmetro **É estatisticamente significante**;
 
+O valor dessa estatística pode ser calculado conform segue:
+```
+from scipy.stats import t
+```
+Se a regressão for uma regressão simples (apenas um parâmetro), então `t` é calculado simplesmente como a raiz quadrada da estatística F, com o auxílio do `numpy`:
+```
+t = np.sqrt(f)
+```
+Para cálculo das estatísticas T de cada um dos parâmetros precisa-se saber os graus de liberdade da amostra e também o score T da variável em questão.
+
+TODO: verificar essa seção abaixo
+'######
+O cálculo do score T se dá por
+```
+t_score = (df[param].mean() - U) / (df[param].sd() / np.sqrt(len(df)))
+```
+tt = (sm-m)/np.sqrt(sv/float(n))  # t-statistic for mean
+pval = stats.t.sf(np.abs(tt), n-1)*2  # two-sided pvalue = Prob(abs(t)>tt)
+'######
+
+Sobre a comprovação do diagnóstico do parâmetro não ser estatisticamente significante quando em uma regressão múltipla, se na forma funcional geral ele já apresenta um p-value acima de 0,05 e se deseja comprovar essa descartabilidade do parâmetro, pode ser realizada uma regressão simples entre o parâmetro em questão e o target, a estatística t novamente vai indicar a não-rejeição de H<sub>0</sub>.
+
+##### Teste de verificação de aderência dos resíduos à normalidade (Shapiro-Francia)
+Necessária a importação do pacote `statstests`:
+```
+from statstests.tests import shapiro_francia
+...
+shapiro_francia(modelo.resid).items()  # .items() utilizado apenas por questões estéticas
+```
+
+  - H<sub>0</sub>: p-value > 0,05, significando que a distribuição dos resíduos **NÃO é estatisticamente diferente** de uma distribução normal;
+  - H<sub>1</sub>: p-value <= 0,05, significando que a distribuição dos resíduos **É estatisticamente diferente** (distribuição não aderente à normalidade, sendo necessária utilização de transformação Box-Cox _na variável dependente ou target_ - NORMALIZAÇÃO);
+
+**Particularidade**: se o número de observações for inferior a 30 pode ser utilizado o teste de Shapiro-Wilk:
+```
+from scipy.stats import shapiro
+...
+shapiro(modelo.resid)
+```
+
+##### Transformação de Box-Cox
+```
+from scipy.stats import boxcox
+...
+y_chapeu, lbda = boxcox(df[target])
+```
+A execução da função acima retorna dois objetos: `y_chapeu` sendo os valores já transformados/normalizados da variável dependente (ou do target) e `lbda`, que é o lambda estabelecido para a transformação realizada (importante mencionar no desenvolvimento da solução do problema).
 
 #### Informações adicionais
-Podem-se ser obtidos tanto o somatório dos quadrados do modelo ((y_observado - y_médio)<sup>2</sup> `modelo.ess`) como o somatório dos erros ao quadrado (`modelo.ssr`), que são utilizados para se calcular a estatística F do modelo.
-
 É importante ressaltar que um modelo sobre um banco de dados horizontalizado (num features > num observações) não consegue explicar apropriadamente o comportamento desse banco de dados em função dessa discrepância.
 
 O parâmetro alpha **sempre** se mantém na equação. Se porventura esse parâmetro der estatisticamente não significante é sinal apenas de pouca quantidade de observações no banco de dados. Logo, em se aumentando a quantidade de informações o parâmetro passa a ser significativo.
+
+Para comparações de modelos OLS se utiliza o R<sup>2</sup><sub>adjusted</sub>, que leva em consideração as dimensões de cada modelo.
 
 ### 2. Modelo Linear c/ Transformação Box-Cox
 A transformação se dá assim e assado, a regressão utiliza a mesma formulação do Modelo Linear
@@ -129,7 +163,9 @@ Os modelos desenvolvidos a partir de GLM/GLMM possuem atributos que são disponi
 - Estatística T dos parâmetros: `modelo.tvalues`
 - p-values dos parâmetros: `modelo.pvalues`
 - R<sup>2</sup> do modelo: `modelo.rsquared`
-**Nota:** os parâmetros, as estatísticas e os p-values podem ser visualizados individualmente com utilização de `.iloc[]`
+- R<sup>2</sup><sub>adjusted</sub> do modelo: `modelo.rsquared_adj`
+- Resíduos do modelo: `modelo.resid`
+**Nota:** os valores pertinentes a cada observação, se aplicável, podem ser visualizados individualmente com utilização de `.iloc[]`
 
 ### Facilitador para as fórmulas
 Código para o script:
