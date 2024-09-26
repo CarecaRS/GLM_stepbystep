@@ -47,8 +47,8 @@ Após rodar o modelo temos os resultados com `modelo.summary()`.
 
 #### Estatística F (para validade ou não do modelo)
 O p-value da estatística dado em `Prob (F-statistic)` no summary.
-- H<sub>0</sub>: se F<sub>calculado</sub> < F<sub>crítico</sub>, então p-value > 0,05, logo b<sub>1</sub> = b<sub>2</sub> = b<sub>3</sub> = ... = b<sub>n</sub> = 0. Deste modo, nenhum beta é estatisticamente significante e o modelo cai por terra, não podendo ser utilizada para fins preditivos.
-- H<sub>1</sub>: se F<sub>calculado</sub> $\ge$ F<sub>crítico</sub>, então p-value $\le$ 0,05, logo pelo menos um beta é diferente de zero e estatisticamente significante;
+- H<sub>0</sub>: se F<sub>calculado</sub> < F<sub>crítico</sub>, então p-value > 0,05, logo b<sub>1</sub> = b<sub>2</sub> = b<sub>3</sub> = ... = b<sub>n</sub> = 0. Deste modo, nenhum beta é estatisticamente significante e o modelo cai por terra, não podendo ser utilizada para fins preditivos;
+- H<sub>1</sub>: se F<sub>calculado</sub> $\ge$ F<sub>crítico</sub>, então p-value $\le$ 0,05, logo pelo menos um beta é diferente de zero e estatisticamente significante.
 
 O valor dessa estatística pode ser calculado conforme disposto abaixo:
 ```
@@ -227,8 +227,8 @@ Temos, por consequência, então:
 
 E, sendo assim, a probabilidade de ocorrência do evento se dá por: 
 - p = e<sup>z</sup>/(1 + e<sup>z</sup>)
-- p = 1 / (1 + e<sup>-z</sup>)  # favor notar o expoente negativo
-- p = 1 / (1 + e<sup>-($a$ + $b$<sub>1</sub>x<sub>1i</sub> + $b$<sub>2</sub>x<sub>2i</sub> + ... + $b$<sub>n</sub>x<sub>ni</sub>)</sup>)
+- p = 1 / (1 + e<sup>-z</sup>)      <sub># favor notar o expoente negativo</sub>
+- p = 1 / (1 + e<sup>-(<sub>$a$ + $b$<sub>1</sub>x<sub>1i</sub> + $b$<sub>2</sub>x<sub>2i</sub> + ... + $b$<sub>n</sub>x<sub>ni</sub></sub>)</sup>)
 
 No Python (ambos códigos resultam em respostas iguais):
 ```
@@ -244,20 +244,112 @@ Nota importante sobre a estatística Z citada acima: Z é a distribuição norma
 ### Verificações para o modelo
 Após rodar o modelo temos os resultados com `modelo.summary()`, conforme citado acima.
 
-#### Cálculo do chi<sup>2</sub> (para validade ou não do modelo)
-Na modelagem através de `sm.logit.from_formula` o summary retorna também a informação LLR (log-likelihood ratio), equivalente ao **p-value** da estatística F no modelo OLS, contudo aqui é um chi<sup>2</sup> por se tratar de target qualitativo.
+#### Cálculo do $\chi$<sup>2</sup> ('chi-quadrado', para validade ou não do modelo)
+Na modelagem através de `sm.logit.from_formula` o summary retorna também a informação LLR (log-likelihood ratio), equivalente ao **p-value** da estatística F no modelo OLS, contudo aqui é um $\chi$<sup>2</sup> por se tratar de target qualitativo.
 
-O primieiro passo é rodar um modelo nulo (sem betas, apenas com o alfa). Depois verifica-se o incremento no loglike quando se altera do modelo nulo para o modelo funcional. Se o incremento do loglike for estatisticamente significante pelo menos um beta será diferente de zero.
-> modelo_nulo = sm.Logit.from_formula('target ~ 1', data=df).fit()
+O primeiro passo é rodar um modelo nulo (sem betas, apenas com o alfa). Depois verifica-se o incremento no loglike quando se altera do modelo nulo para o modelo funcional. Se o incremento do loglike for estatisticamente significante pelo menos um beta será diferente de zero.
+```
+modelo_nulo = sm.Logit.from_formula('target ~ 1', data=df).fit()
+```
 
 Os valores dos loglikes podem ser obtidos através do atributo `.llf` de cada modelo, por exemplo:
-> modelo_nulo.llf
-
+```
+modelo_nulo.llf
+```
+  
 O cálculo do chi<sup>2</sup> é realizado conforme segue abaixo.
-> $\chi$<sup>2</sup> = -2 * (LL<sub>0</sub> - LL<sub>m</sub>
-
+```
+$\chi$<sup>2</sup> = -2 * (LL<sub>0</sub> - LL<sub>m</sub>)
+```
 onde LL<sub>0</sub> é o loglike do modelo nulo e LL<sub>m</sub> é o loglike do modelo estimado.
 
+No Python:
+```
+chi2 = -2*(modelo_nulo.llf - modelo.llf)
+pvalue_chi2 = stats.distributions.chi2.sf(chi2, modelo.df_model)
+```
+A análise é análoga à da estatística F dos modelos OLS:
+- H<sub>0</sub>: se o p-value do $\chi$<sup>2</sup> > 0,05, então b<sub>1</sub> = b<sub>2</sub> = b<sub>3</sub> = ... = b<sub>n</sub> = 0. Deste modo, nenhum beta é estatisticamente significante e o modelo cai por terra, não podendo ser utilizada para fins preditivos;
+- H<sub>1</sub>: se o p-value do $\chi$<sup>2</sup> $\le$ 0,05, então pelo menos um beta é diferente de zero e estatisticamente significante.
+
+#### Comparação entre modelos
+Os modelos de logística binária podem ser comparados através de três parâmetros: o pseudo R<sup>2</sup> (exibido no summary), o AIC (Akaike Info Criterion) e o BIC (Bayesian Info Criterion).
+- Pseudo R<sup>2</sup>: quanto maior, melhor.
+- AIC e BIC: quanto mais próximo de zero, melhor.
+
+Os valores AIC e BIC são atributos dos modelos estabelecidos (`modelo.aic` e `modelo.bic`). Para cálculo manual:
+```
+aic = -2 * (modelo.llf) + 2 * (len(modelo.params) + 1)
+bic = -2 * (modelo.llf) + (len(modelo.params) + 1)*np.log(len(modelo))
+```
+
+#### Predição
+Pode ser 'aberta' a expressão do modelo e substituem-se os betas e os parâmetros, como pode ser utilizado o atribuito `predict` do modelo calculado:
+```
+modelo.predict(pd.DataFrame({target:value, 'feature1':value, 'feature2':value'}))
+```
+
+Para realizar a predição (ou, a probabilidade) de cada um dos eventos, pode-se registrar:
+```
+df['y_chapeu'] = modelo.predict()
+```
+
+#### Cutoff
+Com a utilização de cutoffs (o nível é definido pelo programador, representando ponto de corte das probabilidades e estabelecido como float entre 0 e 1), temos que:
+- Se `y_chapeu` $\ge$ cutoff: evento
+- Se `y_chapeu` < cutoff: não-evento
+
+#### Matriz de Confusão
+Código copiado do prof. Fávero:
+```
+from sklearn.metrics import confusion_matrix, accuracy_score, ConfusionMatrixDisplay, recall_score
+
+def matriz_confusao(predicts, observado, cutoff):
+    
+    values = predicts.values
+    
+    predicao_binaria = []
+        
+    for item in values:
+        if item < cutoff:
+            predicao_binaria.append(0)
+        else:
+            predicao_binaria.append(1)
+           
+    cm = confusion_matrix(predicao_binaria, observado)
+    disp = ConfusionMatrixDisplay(confusion_matrix=cm)
+    disp.plot()
+    plt.xlabel('True')
+    plt.ylabel('Classified')
+    plt.gca().invert_xaxis()
+    plt.gca().invert_yaxis()
+    plt.show()
+        
+    sensitividade = recall_score(observado, predicao_binaria, pos_label=1)
+    especificidade = recall_score(observado, predicao_binaria, pos_label=0)
+    acuracia = accuracy_score(observado, predicao_binaria)
+
+    # Visualização dos principais indicadores desta matriz de confusão
+    indicadores = pd.DataFrame({'Sensitividade':[sensitividade],
+                                'Especificidade':[especificidade],
+                                'Acurácia':[acuracia]})
+    return indicadores
+
+
+matriz_confusao(observado=df[target],
+                predicts=df['y_chapeu'], 
+                cutoff=0.5)
+```
+Com o auxílio do pacote `scikit-learn`, a função acima já gera a matriz de confusão baseada no cutoff definido pelo operador. Reforçando: uma matriz de confusão qualquer é estabelecida sempre em função do cutoff definido pelo programador, em se alterando o nível do cutoff também alteram-se os valores distribuídos na matriz de confusão.
+
+Na Matriz de Confusão, temos que:
+- Sensitividade (ou *recall*), tida como taxa de acerto dos eventos = TP / Positives
+- Especificidade, tida como taxa de acerto dos não-eventos = TN / Negatives
+- Acurácia, tida como eficiência geral do modelo = (TP + TN) / total
+
+HUEHUEHUE
+
+AQUI FINALIZA A PRIMEIRA AULA DE MODELOS LOGÍSTICOS BINOMIAIS
 
 ## 4. Modelo Logístico Multinomial
 texto
