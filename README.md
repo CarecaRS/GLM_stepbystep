@@ -586,9 +586,12 @@ overdisp(modelo, df)
 ```
 ## 6. Modelo Binomial Negativo (Poisson-Gamma)
 Para determinada observação _i_ (_i_ = 1, 2, ..., _n_), a função da distribuição de probabilidade da variável dependente Y será dada por:
-> p(Y<sub>i</sub> = m) = $\delta$<sup> $\theta$</sup> * m<sub>i</sub><sup> $\theta$ - 1</sup> * e<sup>-m<sub>i</sub> $\theta$</sup> / ( $\theta$ - 1)!
+> p(Y<sub>i</sub> = m) = (($\delta$ ^ $\theta$ ) * m<sub>i</sub>^ ($\theta$ - 1) * e^(-m<sub>i</sub> * $\theta$)) / ( $\theta$ - 1)!
 
-em que $\theta$ é chamado de parâmetro de forma ( $\theta$ > 0) e $\delta$ é chamado de parâmetro de taxa de decaimento ( $\delta$ > 0)
+em que $\theta$ é chamado de parâmetro de forma ( $\theta$ > 0 ) e $\delta$ é chamado de parâmetro de taxa de decaimento ( $\delta$ > 0 ).
+
+Nos modelos binomiais negativos, a média se dá por E(Y) = $\delta$<sub>bneg</sub> (E = esperança matemática).
+Já para a variância temos que a variância é igual à média mais um componente de dispersão, calculado por $\phi$ * ( $\delta$<sub>bneg</sub>)<sup>2</sup>: Var(Y) = $\delta$<sub>bneg</sub> + $\phi$ * ( $\delta$<sub>bneg</sub>)<sup>2</sup>, uma vez que $\phi$ = 1 / $\theta$ .
 
 ```
 smf.glm(..., family=sm.families.NegativeBinomial(alpha=N).fit()
