@@ -584,22 +584,77 @@ from statstests.tests import overdisp
 
 overdisp(modelo, df)
 ```
+
+### Predição
+O modelo estabelecido possui atributo `predict()`, então pode-se simplesmente chamar esse atributo e comandar a previsão para os dados que se deseja:
+```
+modelo.predict(pd.DataFrame({'feature1':[value], 'feature2':[value]}))
+```
+
 ## 6. Modelo Binomial Negativo (Poisson-Gamma)
+Dependendo do programa a ser utilizado também nomeia este modelo como Modelo Negativo Tipo 2 (NB2).
+
 Para determinada observação _i_ (_i_ = 1, 2, ..., _n_), a função da distribuição de probabilidade da variável dependente Y será dada por:
 > p(Y<sub>i</sub> = m) = (($\delta$ ^ $\theta$ ) * m<sub>i</sub>^ ($\theta$ - 1) * e^(-m<sub>i</sub> * $\theta$)) / ( $\theta$ - 1)!
 
 em que $\theta$ é chamado de parâmetro de forma ( $\theta$ > 0 ) e $\delta$ é chamado de parâmetro de taxa de decaimento ( $\delta$ > 0 ).
 
 Nos modelos binomiais negativos, a média se dá por E(Y) = $\delta$<sub>bneg</sub> (E = esperança matemática).
-Já para a variância temos que a variância é igual à média mais um componente de dispersão, calculado por $\phi$ * ( $\delta$<sub>bneg</sub>)<sup>2</sup>: Var(Y) = $\delta$<sub>bneg</sub> + $\phi$ * ( $\delta$<sub>bneg</sub>)<sup>2</sup>, uma vez que $\phi$ = 1 / $\theta$ .
 
+Já para a variância temos que a variância é igual à média mais um componente de dispersão, calculado por $\phi$ * ( $\delta$<sub>bneg</sub>)<sup>2</sup>. Algebricamente, então, tem-se Var(Y) = $\delta$<sub>bneg</sub> + $\phi$ * ( $\delta$<sub>bneg</sub>)<sup>2</sup>, uma vez que $\phi$ = 1 / $\theta$ .
+
+Se $\phi$ for _estatisticamente diferente de zero_ então teremos um modelo de cauda longa (ou Gamma, daí o nome).
+
+### Formulação algébrica e no Python
+Algebricamente a formulação é exatamente igual à dos [Modelos Poisson](#formulação-algébrica-e-no-python-3).
+
+No Python nota-se que o parâmetro chamado 'alpha' é o $\phi$. Também pode ser executado com qualquer uma das duas funções abaixo que o resultado é exatemente igual.
 ```
-smf.glm(..., family=sm.families.NegativeBinomial(alpha=N).fit()
-sm.NegativeBinomial.from_formula().fit()
+smf.glm(formula='target ~ feature1 + feature2', data=df, family=sm.families.NegativeBinomial(alpha=0).fit()
+
+sm.NegativeBinomial.from_formula(target ~ feature1 + feature2, data=df).fit()
+```
+
+### Comparação entre modelos
+Ver [Comparação entre modelos](#comparação-entre-modelos) da seção sobre Logística Binária, é o mesmo raciocínio.
+
+### Verificações para o modelo
+Após rodar o modelo temos os resultados com `modelo.summary()`, de forma análoga a todos os outros modelos GLM.
+
+#### Estatística t (atesta a existência ou não da cauda longa)
+Para os diversos parâmetros, segue-se conforme disposto [um pouco mais acima](#estatística-t-para-validade-ou-não-dos-parâmetros).
+
+Especificamente para o parâmetro $\phi$, no `summary()` do modelo criado a partir da função `NegativeBinomial.from_formula()` tem-se a informação do p-value do parâmetro que o Python chama de 'alpha' mas que para uso prático é o $\phi$. E é esta informação que servirá de parâmetro para a definição da existência ou não de cauda longa nos dados do modelo.
+
+- H<sub>0</sub>: p-value do $\phi$ > 0,05, então $\phi$ **NÃO É** estatisticamente significante (é igual a zero) e o modelo é baseado em dados _SEM PRESENÇA_ de cauda longa na dispersão e trabalhar-se-á, por consequência, com [Modelagem de Poisson](#5-modelo-poisson);
+- H<sub>1</sub>: p-value do $\phi$ $\le$ 0,05, então $\phi$ **É** estatisticamente significante (portanto diferente de zero) e o modelo é basedo em dados _COM PRESENÇA DE CAUDA LONGA_ na dispersão e trabalhar-se-á, por consequência, com Modelagem Binomial Negativa ou Poisson-Gama.
+
+### Predição
+O modelo estabelecido possui atributo `predict()`, então pode-se simplesmente chamar esse atributo e comandar a previsão para os dados que se deseja:
+```
+modelo.predict(pd.DataFrame({'feature1':[value], 'feature2':[value]}))
 ```
 
 ## 7. Modelo Binomial Zero-Inflated Poisson
-texto
+O histograma desse modelo tem como característica a alta/altíssima ocorrência de zeros dentro do panorama de classificação. Por exemplo: ocorrência de doenças raras, ocorrência de violência doméstica, acidentes de avião, desastres ambientais, etc.
+
+Enquanto um modelo Poisson inflacionado de zeros é estimado a partir da combinação de uma distribuição Bernoulli com uma distribuição Poisson, um modelo binomial negativo inflacionado de zeros é estimado por meio da combinação de uma distribuição Bernoulli com uma distribuição Poisson-Gama.
+
+Percebe-se que a cauda longa da dispersão é sempre tratada por Poisson-Gama.
+
+A definição sobre a existência ou não de uma quantidade excessiva de zeros na variável dependente é elaborada por meio do teste de Vuong, disponível no pacote `statstests`.
+
+Em relação especificamente aos modelos de regressão Poisson inflacionados de zeros, podemos definir que, enquanto a probabilidade p de ocorrência de **nenhuma contagem** para dada observação _i_, ou seja, p(Y<sub>i</sub> = 0), é calculada levando-se em consideração a soma de um componente dicotômico com um componente de contagem e, por tanto, deve-se definir a probabilidade p<sub>logit</sub> de não ocorrer nenhuma contagem devido exclusivamente ao componente dicotômico, a probabilidade p de ocorrência de determinada contagem m (m = 1, 2, 3...), ou seja, p(Y<sub>i</sub> = m) segue a própria expressão da probabilidade da distribuição Poisson, multiplicada por (1 - p<sub>logit</sub>).
+
+### Formulação algébrica e no Python
+Algebricamente temos que:
+- p(Y<sub>i</sub> = 0) = p<sub>logit<sub>i</sub></sub> + (1 - p<sub>logit<sub>i</sub></sub>) * e<sup>- $\lambda$i</sup>
+- p(Y<sub>i</sub> = m) = (1 - p<sub>logit<sub>i</sub></sub>) * (e<sup>- $\lambda$i</sup> * $\lambda$<sub>i</sub><sup>m</sup>)/m!
+
+p<sub>logit<sub>i</sub></sub> = 1 / bla
+
+$\lambda$<sub>poisson<sub>i</sub></sub> = e ^ (abcde)
+
 ```
 sm.ZeroInflatedPoisson().fit()
 ```
