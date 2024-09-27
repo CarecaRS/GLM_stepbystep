@@ -648,12 +648,15 @@ Em relação especificamente aos modelos de regressão Poisson inflacionados de 
 
 ### Formulação algébrica e no Python
 Algebricamente temos que:
-- p(Y<sub>i</sub> = 0) = p<sub>logit<sub>i</sub></sub> + (1 - p<sub>logit<sub>i</sub></sub>) * e<sup>- $\lambda$i</sup>
-- p(Y<sub>i</sub> = m) = (1 - p<sub>logit<sub>i</sub></sub>) * (e<sup>- $\lambda$i</sup> * $\lambda$<sub>i</sub><sup>m</sup>)/m!
+- p(Y<sub>i</sub> = 0) = p<sub>logit<sub>i</sub></sub> + (1 - p<sub>logit<sub>i</sub></sub>) * e<sup>- $\lambda$ i</sup>
+- p(Y<sub>i</sub> = m) = (1 - p<sub>logit<sub>i</sub></sub>) * (e<sup>- $\lambda$i</sup> * $\lambda$ <sub>i</sub><sup>m</sup>) / m!
 
-p<sub>logit<sub>i</sub></sub> = 1 / bla
+p<sub>logit<sub>i</sub></sub> = 1 / (1 + e^-($\gamma$ + $\delta$<sub>1</sub>w<sub>1i</sub> + $\delta$<sub>2</sub>w<sub>2i</sub> + ... + $\delta$<sub>n</sub>w<sub>ni</sub> ))
 
-$\lambda$<sub>poisson<sub>i</sub></sub> = e ^ (abcde)
+$\lambda$<sub>poisson<sub>i</sub></sub> = e ^ ($a$ + $b$<sub>1</sub>x<sub>1i</sub> + $b$<sub>2</sub>x<sub>2i</sub> + $b$<sub>n</sub>x<sub>ni</sub>)
+
+HUEHEUHEUEHU
+1:48:01 da aula de dados de contagem II
 
 ```
 sm.ZeroInflatedPoisson().fit()
