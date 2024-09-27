@@ -549,10 +549,41 @@ Conforme disposto [um pouco mais acima](#estatística-t-para-validade-ou-não-do
 - 4º Passo: Observar a significância do parâmetro beta.
 
 Para a variável Y<sup>*</sup>, tem-se que:
-> Y<sup>*</sup><sub>i</sub> = [(Y<sub>i</sub> - $\lambda$<sub>poisson<sub>i</sub></sub>)<sup>2</sup> - Y<sub>i</sub>]/$\lambda$<sub>poisson<sub>i</sub></sub>
+> Y<sup>*</sup><sub>i</sub> = [(Y<sub>i</sub> - $\lambda$<sub>poisson<sub>i</sub></sub>)<sup>2</sup> - Y<sub>i</sub>]/ $\lambda$<sub>poisson<sub>i</sub></sub>
+
+Lembrando que `(Y<sub>i</sub> - $\lambda$<sub>poisson<sub>i</sub></sub>)<sup>2</sup>` refere-se ao resíduo da estimação.
+
+Adicionalmente, realiza-se um teste de variância contra a média:
 
 > Y<sup>*</sup><sub>i</sub> = $b$ * $\lambda$<sub>poisson<sub>i</sub></sub>
 
+Se ocorrer o fenômeno da superdispersão dos dados, o parâmetro estimado $b$ acima será _estatisticamente diferente de zero_ a determinado nível de significância (normalmente 5%). Então:
+- Se p-value $b$ $\le$ 0,05 então existe superdispersão e parte-se para um [modelo binomial negativo](#6-modelo-binomial-negativo-poisson-gamma);
+- Se p-value $b$ > 0,05 então existe equidispersão e permanece-se na modelagem Poisson.
+
+Esse processo todo no Python (testar quando for usar e ajustar aqui se necessário - abre e fecha parênteses pode ter pegadinha):
+```
+# Adiciona-se os valores estimados ao dataframe
+df['lambda_poisson'] = modelo.fittedvalues
+
+# Cria-se nova variável Y* conforme definição acima (variável Y*)
+df['y_asterisco'] = (((df[target] - df['lambda_poisson'])**2) - df[target])/df['lambda_poisson']
+
+# Realiza-se a estimação (passo 3 acima) do modelo OLS sem o intercepto
+modelo_aux = sm.OLS.from_formula('y_asterisco ~ 0 + lambda_poisson', df).fit()
+
+# Resumo do modelo auxiliar, prestando atenção ao p-value da variável lambda_poisson
+modelo_aux.summary()
+
+# Se p-value > 0.05, existência de equidispersão nos dados;
+# Se p-value <= 0.05, existência de superdispersão nos dados, partindo-se então para um modelo binomial negativo
+```
+Alternativamente, e de forma mais simples, depois de se rodar o modelo a ser testado pode-se utilizar a função `overdisp()` que encontra-se disponível no pacote `statstests` e que já retorna print sobre a existência ou não de superdispersão em forma de texto:
+```
+from statstests.tests import overdisp
+
+overdisp(modelo, df)
+```
 ## 6. Modelo Binomial Negativo (Poisson-Gamma)
 texto
 ```
