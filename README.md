@@ -395,7 +395,19 @@ Este Gini calcula o valor da ROC acima da linha de 45° no gráfico (linha de 'c
 Pode (para não escrever 'deve') ser realizado, de modo a manter apenas as variáveis estatisticamente significantes no modelo final. Realizado conforme constante [acima](#procedimento-stepwise).
 
 ## 4. Modelo Logístico Multinomial
-texto
+Tem-se uma categoria de referência (p<sub>0</sub>) e tantas categorias alternativas adicionais quantas forem as outras categorias de classificação existentes. Bem como para cada cadegoria alternativa adicional tem-se um logito (z) adicional específico desta categoria.
+
+Como exemplo geral, para um modelo logístico multinomial de 3 classes temos que:
+
+> p<sub>0</sub> = e<sup>0</sup>/(e<sup>0</sup> + e<sup>z<sub>1</sub> + </sup>e<sup>z<sub>2</sub></sup> = 1 / (1 + e<sup>z<sub>1</sub> + </sup>e<sup>z<sub>2</sub></sup>)
+
+> p<sub>1</sub> = e<sup>z<sub>1</sub></sup>/(1 + e<sup>z<sub>1</sub> + </sup>e<sup>z<sub>2</sub></sup>)
+
+> p<sub>2</sub> = e<sup>z<sub>2</sub></sup>/(1 + e<sup>z<sub>1</sub> + </sup>e<sup>z<sub>2</sub></sup>)
+
+E, sempre, 
+> p<sub>0</sub + p<sub>1</sub> + p<sub>2</sub> + ... + p<sub>n</sub> = 1
+
 ```
 MNLogit()
 sm.discrete.discrete_model().fit()
