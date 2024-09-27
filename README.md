@@ -90,12 +90,14 @@ Sobre a comprovação do diagnóstico do parâmetro não ser estatisticamente si
 
 Se porventura uma regressão simples entre o parâmetro e o target indicar a rejeição de H<sub>0</sub> (ou seja, parâmetro sim estatísticamente significante) a conclusão é que o parâmetro em questão não é um bom preditor da variável target _na presença das demais variáveis_, o que pode ser confirmado através de uma matriz de correlação (é um caso de presença de multicolinearidade - alta correlação entre duas ou mais variáveis).
 
+#### Procedimento Stepwise
 Para o estabelecimento final dos parâmetros que permanecem na forma funcional final da solução do problema proposto pode ser utilizada a função `stepwise`, disponível no pacote `statstests`:
 ```
 from statstests.process import stepwise
 ...
 stepwise(modelo, pvalue_limit=0.05)
 ```
+Este procedimento é válido para qualquer modelo GLM que seja desenvolvido.
 
 #### Teste de verificação de aderência dos resíduos à normalidade (Shapiro-Francia)
 Necessária a importação do pacote `statstests`:
@@ -235,7 +237,7 @@ No Python (ambos códigos resultam em respostas iguais):
 modelo = smf.glm(formula='target ~ feature1 + feature2', dataset=df,
                  family=sm.families.Binomial()).fit()
 
-modelo = sm.Logit.from_formula('target ~ feature1 + feature2', data=df).fit()
+modelo = sm.Logit.from_formula('target ~ feature1 + feature2', data=df).fit()  # mais simples, preferível
 ```
 Da mesma forma que o modelo OLS, o modelo calculado com a expressão acima também possui o atributo `.summary()` para a consulta aos resultados em forma tabulada, onde constam as informações sobre os coeficientes, log-likelihood, estatísticas Z, etc.
 
@@ -261,6 +263,7 @@ O cálculo do $\chi$<sup>2</sup> é realizado conforme segue abaixo.
 ```
 $\chi$<sup>2</sup> = -2 * (LL<sub>0</sub> - LL<sub>m</sub>)
 ```
+
 onde LL<sub>0</sub> é o loglike do modelo nulo e LL<sub>m</sub> é o loglike do modelo estimado.
 
 No Python:
@@ -342,14 +345,54 @@ matriz_confusao(observado=df[target],
 ```
 Com o auxílio do pacote `scikit-learn`, a função acima já gera a matriz de confusão baseada no cutoff definido pelo operador. Reforçando: uma matriz de confusão qualquer é estabelecida sempre em função do cutoff definido pelo programador, em se alterando o nível do cutoff também alteram-se os valores distribuídos na matriz de confusão.
 
-Na Matriz de Confusão, temos que:
-- Sensitividade (ou *recall*), tida como taxa de acerto dos eventos = TP / Positives
-- Especificidade, tida como taxa de acerto dos não-eventos = TN / Negatives
-- Acurácia, tida como eficiência geral do modelo = (TP + TN) / total
+Na Matriz de Confusão, levando em consideração o cutoff específico que foi estabelecido, temos que:
+> Sensitividade (ou *recall*), tida como taxa de acerto dos eventos = TP / (TP + FN)  # ou TP / Positives
 
-HUEHUEHUE
+> Especificidade, tida como taxa de acerto dos não-eventos = TN / (FP + TN)  # ou TN / Negatives
 
-AQUI FINALIZA A PRIMEIRA AULA DE MODELOS LOGÍSTICOS BINOMIAIS
+> Acurácia, tida como eficiência geral do modelo = (TP + TN) / total
+
+> Precision = TP / (TP + FP)
+
+> F1score, tida como média harmônica entre Recall e Precision = 2 * Recall * Precison / (Recall + Precision)
+
+#### Curva ROC
+Área abaixo da curva ou Receiver Operating Characteristic. É necessária a verificação da ROC para todo santo modelo de classificação que se programa.
+
+O gráfico da curva ROC é estabelecido estipulando a Sensitividade (ou tpr - true positive rate) no eixo Y e (1 - Especificidade = fpr = FP / (FP + TN), onde 'fpr' é a false positive rate) no eixo X. 
+
+A métrica de avaliação AUC é calculada como a área abaixo de uma curva ROC (característica de operação do receptor) e é uma representação escalar do desempenho esperado de um classificador. A AUC está sempre entre 0 e 1, com um número maior representando um classificador melhor.
+
+A construção se dá mais ou menos assim:
+```
+from sklearn.metrics import roc_curve, auc
+
+fpr, tpr, thresholds =roc_curve(df[target], df['y_chapeu'])
+roc_auc = auc(fpr, tpr)
+
+# Cálculo do coeficiente de GINI, explicado na próxima seção
+gini = (roc_auc - 0.5)/(0.5)
+
+# Plot da curva
+plt.figure(figsize=(15,10))
+plt.plot(fpr, tpr, marker='o', color='blue', markersize=10, linewidth=3)
+plt.plot(fpr, fpr, color='gray', linestyle='dashed')
+plt.title('Área abaixo da curva: %g' % round(roc_auc, 4) +
+          ' | Coeficiente de GINI: %g' % round(gini, 4), fontsize=22)
+plt.xlabel('1 - Especificidade', fontsize=20)
+plt.ylabel('Sensitividade', fontsize=20)
+plt.xticks(np.arange(0, 1.1, 0.2), fontsize=14)
+plt.yticks(np.arange(0, 1.1, 0.2), fontsize=14)
+plt.show()
+```
+
+#### Coeficiente de Gini
+Acredito não ser o mesmo raciocínio do Gini da Economia, indicador da concentração (ou não) de qualquer coisa - normalmente tido como indicador de concentração de renda.
+
+Este Gini calcula o valor da ROC acima da linha de 45° no gráfico (linha de 'chute' ou em inglês 'guess'), oscilando entre -1 e +1, com um score 0 resultando igual à linha guess. Para valores negativos de Gini pode-se descartar o modelo de imediato, uma vez que esse resultado é inferior à linha de chute.
+
+#### Procedimento Stepwise
+Pode (para não escrever 'deve') ser realizado, de modo a manter apenas as variáveis estatisticamente significantes no modelo final. Realizado conforme constante [acima](#procedimento-stempwise).
 
 ## 4. Modelo Logístico Multinomial
 texto
