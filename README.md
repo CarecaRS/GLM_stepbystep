@@ -289,10 +289,10 @@ bic = -2 * (modelo.llf) + (len(modelo.params) + 1)*np.log(len(modelo))
 #### Predição
 Pode ser 'aberta' a expressão do modelo e substituem-se os betas e os parâmetros, como pode ser utilizado o atribuito `predict` do modelo calculado:
 ```
-modelo.predict(pd.DataFrame({target:value, 'feature1':value, 'feature2':value'}))
+modelo.predict(pd.DataFrame({target:[value], 'feature1':[value], 'feature2':[value]}))
 ```
 
-Para realizar a predição (ou, a probabilidade) de cada um dos eventos, pode-se registrar:
+Para realizar a predição (ou, a probabilidade) de cada uma das observações, pode-se registrar:
 ```
 df['y_chapeu'] = modelo.predict()
 ```
@@ -303,7 +303,7 @@ Com a utilização de cutoffs (o nível é definido pelo programador, representa
 - Se `y_chapeu` < cutoff: não-evento
 
 #### Matriz de Confusão
-Código copiado do prof. Fávero:
+Código copiado do prof. Dr. Luiz Paulo Fávero:
 ```
 from sklearn.metrics import confusion_matrix, accuracy_score, ConfusionMatrixDisplay, recall_score
 
@@ -397,6 +397,7 @@ Pode (para não escrever 'deve') ser realizado, de modo a manter apenas as vari�
 ## 4. Modelo Logístico Multinomial
 Tem-se uma categoria de referência (p<sub>0</sub>) e tantas categorias alternativas adicionais quantas forem as outras categorias de classificação existentes. Bem como para cada cadegoria alternativa adicional tem-se um logito (z) adicional específico desta categoria.
 
+### Formulação algébrica e no Python
 Como exemplo geral, para um modelo logístico multinomial de 3 classes temos que:
 
 > p<sub>0</sub> = e<sup>0</sup>/(e<sup>0</sup> + e<sup>z<sub>1</sub> + </sup>e<sup>z<sub>2</sub></sup> = 1 / (1 + e<sup>z<sub>1</sub> + </sup>e<sup>z<sub>2</sub></sup>)
@@ -405,12 +406,104 @@ Como exemplo geral, para um modelo logístico multinomial de 3 classes temos que
 
 > p<sub>2</sub> = e<sup>z<sub>2</sub></sup>/(1 + e<sup>z<sub>1</sub> + </sup>e<sup>z<sub>2</sub></sup>)
 
-E, sempre, 
-> p<sub>0</sub + p<sub>1</sub> + p<sub>2</sub> + ... + p<sub>n</sub> = 1
+E, lógico, o somatório de todas as categorias de classificação sempre é igual a 100%:
+> p<sub>0</sub> + p<sub>1</sub> + p<sub>2</sub> + ... + p<sub>n</sub> = 1
+
+Sobre os logitos, neste exemplo de apenas 3 classes e frisando-se que como uma é sempre a referência, então temos duas categorias alternativas e, portanto, dois logitos no total:
+- z<sub>1</sub> = $a$<sub>1</sub> + $b$<sub>11</sub>x<sub>1<sub>i</sub></sub> + $b$<sub>21</sub>x<sub>2<sub>i</sub></sub> + ... + $b$<sub>n1</sub>x<sub>n<sub>i</sub></sub>
+- z<sub>2</sub> = $a$<sub>2</sub> + $b$<sub>12</sub>x<sub>1<sub>i</sub></sub> + $b$<sub>22</sub>x<sub>2<sub>i</sub></sub> + ... + $b$<sub>n2</sub>x<sub>n<sub>i</sub></sub>
+
+Para a programação no Python, bem como ocorre com os modelos de logística binária vistos anteriormente, pode-se realizar a modelagem através de dois algoritmos diferentes com exatamente os mesmos resultados. Para os modelos multinomiais calculados através da função `MNLogit` é necessário que seja incluída uma constante dentro do banco de dados para a correta estimação.
+```
+x = df[features]
+y = df[target]
+X = sm.add_constant(x)
+
+modelo = MNLogit(endog=y, exog=X).fit()
+
+sm.discrete.discrete_model().fit()
+```
+
+#### Cálculo do $\chi$<sup>2</sup> ('chi-quadrado', para validade ou não do modelo)
+O summary dessas funções também retorna LLR p-value, equivalente ao **p-value** da estatística F no modelo OLS, e aqui é um $\chi$<sup>2</sup> por se tratar de target qualitativo. _Um LLR p-value estatisticamente significante demonstra que existe pelo menos um beta estatisticamente significante em pelo menos um dos logitos._
+
+Com a função `MNLogit()` já temos os dois valores de LL<sub>0</sub> e de LL<sub>m</sub>, respectivamente `modelo.llnull` e `modelo.llf`.
+
+O cálculo do $\chi^{2}$ é realizado da mesma maneira que na modelagem de logística binária:
+
+> $\chi^{2}$ = -2 * (LL<sub>0</sub> - LL<sub>m</sub>)
+
+
+onde LL<sub>0</sub> é o loglike nulo e LL<sub>m</sub> é o loglike estimado.
+
+No Python:
+```
+chi2 = -2*(modelo_nulo.llf - modelo.llf)
+pvalue_chi2 = stats.distributions.chi2.sf(chi2, modelo.df_model)
+```
+A análise é análoga à da estatística F dos modelos OLS:
+- H<sub>0</sub>: se o p-value do $\chi$<sup>2</sup> > 0,05, então b<sub>1</sub> = b<sub>2</sub> = b<sub>3</sub> = ... = b<sub>n</sub> = 0. Deste modo, nenhum beta é estatisticamente significante e o modelo cai por terra, não podendo ser utilizada para fins preditivos;
+- H<sub>1</sub>: se o p-value do $\chi$<sup>2</sup> $\le$ 0,05, então pelo menos um beta é diferente de zero e estatisticamente significante.
+
+#### Comparação entre modelos
+Ver [Comparação entre modelos](#comparação-entre-modelos) da seção sobre Logística Binária.
+
+#### Predição
+Quando o modelo é realizado através da função `MNLogit()` pede-se atenção ao fato de que foi incluída uma constante previamente à estimação efetiva. Desta maneira, para realizar a predição do modelo é necessário também que se informe uma constante como referência:
 
 ```
-MNLogit()
-sm.discrete.discrete_model().fit()
+result = modelo.predict(pd.DataFrame({'const':[1], 'feature1':[value], 'feature2':[value]}))
+result  # retorna tantos valores quanto forem as classes de classificação
+```
+
+Para realizar a predição (ou, a probabilidade) de cada uma das observações, pode-se registrar algo no sentido de:
+```
+x = df[features]
+y = df[target]
+X = sm.add_constant(x)
+
+result_todos = modelo.predict(X)
+```
+
+#### O cutoff é inexistente nos logaritmos multinomiais
+Como os resultados serão sempre 3 ou mais alternativas para cada observação, utiliza-se sempre a alternativa com maior probabilidade calculada de ocorrer o evento estudado:
+```
+result.idxmax(axis=1)  # retorna a classificação final da predição (categoria 0 ou categoria 1 ou categoria 2 ou ...)
+```
+
+#### Plotagem das probabilidades (apenas referência)
+Código apenas como referência, ajustar conforme necessidade. Lembrando que é um gráfico cartesiano, como temos 3 ou mais classificações no total então este gráfico não consegue compreender todas as informações disponíveis, sendo necessária a realização de mais do que um gráfico isolado para o completo storytelling dos dados.
+
+```
+plt.figure(figsize=(15,10))
+
+# Plot para categoria de referência
+sns.regplot(x='feature', y=target[0],
+            data=df, ci=False, order=4,
+            line_kws={'color':'indigo', 'linewidth':4,
+                      'label':'Categoria de Referência'},
+            scatter_kws={'color':'indigo', 's':80, 'alpha':0.5})
+
+# Plot da categoria alternativa 1
+sns.regplot(x='feature', y=target[1],
+            data=df, ci=None, order=4,
+            line_kws={'color':'darkgreen', 'linewidth':4,
+                      'label':'Categoria Alternativa 1'},
+            scatter_kws={'color':'darkgreen', 's':80, 'alpha':0.5})
+
+# Plot da categoria alternativa 2
+sns.regplot(x='feature', y=target[2],
+            data=df, ci=None, order=4,
+            line_kws={'color':'darkorange', 'linewidth':4,
+                      'label':'Categoria Alternativa 2'},
+            scatter_kws={'color':'darkorange', 's':80, 'alpha':0.5})
+
+plt.xlabel('Feature em questão', fontsize=18)
+plt.ylabel('Probabilidades', fontsize=18)
+plt.xticks(fontsize=14)
+plt.yticks(fontsize=14)
+plt.legend(loc='center left', fontsize=14)
+plt.show()
 ```
 
 ## 5. Modelo Poisson
