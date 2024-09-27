@@ -509,11 +509,11 @@ plt.show()
 ## 5. Modelo Poisson
 Dentro dos modelos para dados de contagem, algumas premissas precisam ser supridas para que a modelagem possa ser realizada:
 - Dados quantitativos
-- Discretos
+- Inteiros (discretos)
 - Não negativos (o zero conta)
 - Em uma dada exposição (por hora, a cada 3 meses, em um raio de 5km, etc.)
 
-Importante! A distribuição Poisson possui *tanto a média quanto a variância iguais* (ou muito próximas) a $\lambda$.
+Importante! A distribuição Poisson possui *a média e a variância estatisticamente iguais* (muito próximas).
 
 Se porventura a variãncia for superior (ou muito superior) à média, isso é diagnóstico de distribuições [Poisson-Gama](#6-modelo-binomial-negativo-poisson-gamma)
 
@@ -585,7 +585,11 @@ from statstests.tests import overdisp
 overdisp(modelo, df)
 ```
 ## 6. Modelo Binomial Negativo (Poisson-Gamma)
-texto
+Para determinada observação _i_ (_i_ = 1, 2, ..., _n_), a função da distribuição de probabilidade da variável dependente Y será dada por:
+> p(Y<sub>i</sub> = m) = $\delta$<sup> $\theta$</sup> * m<sub>i</sub><sup> $\theta$ - 1</sup> * e<sup>-m<sub>i</sub> $\theta$</sup> / ( $\theta$ - 1)!
+
+em que $\theta$ é chamado de parâmetro de forma ( $\theta$ > 0) e $\delta$ é chamado de parâmetro de taxa de decaimento ( $\delta$ > 0)
+
 ```
 smf.glm(..., family=sm.families.NegativeBinomial(alpha=N).fit()
 sm.NegativeBinomial.from_formula().fit()
