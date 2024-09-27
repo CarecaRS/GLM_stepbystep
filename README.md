@@ -29,7 +29,7 @@ A documentação básica pode ser encontrada no site do próprio pacote clicando
 |[**Logística Binária**](#3-modelo-logístico-binário)          |Qualitativa com apenas duas categorias                     |_Bernoulli_|
 |[**Logística Multinomial**](#4-modelo-logístico-multinomial)      |Qualitativa com 3+ categorias                                  |_Binomial_|
 |[**Poisson**](#5-modelo-poisson) / [**Zero-Inflated Poisson**](#7-modelo-binomial-zero-inflated-poisson)                    |Quantitativa com valores inteiros e não-negativos (contagem)   |_Poisson_|
-|[**Binomial Negativo (Poisson-Gamma)**](#6-modelo-binomial-negativo-(poisson-gamma)) / [**Zero-Inflated Negative Binomial Poisson**](#8-modelo-binomial-negativo-zero-inflated-poisson)          |Quantitativa com valores inteiros e não-negativos (contagem)   |_Poisson-Gama_|
+|[**Binomial Negativo (Poisson-Gamma)**](#6-modelo-binomial-negativo-poisson-gamma) / [**Zero-Inflated Negative Binomial Poisson**](#8-modelo-binomial-negativo-zero-inflated-poisson)          |Quantitativa com valores inteiros e não-negativos (contagem)   |_Poisson-Gama_|
 
 # Modelos de Regressão
 
@@ -275,7 +275,7 @@ A análise é análoga à da estatística F dos modelos OLS:
 - H<sub>0</sub>: se o p-value do $\chi$<sup>2</sup> > 0,05, então b<sub>1</sub> = b<sub>2</sub> = b<sub>3</sub> = ... = b<sub>n</sub> = 0. Deste modo, nenhum beta é estatisticamente significante e o modelo cai por terra, não podendo ser utilizada para fins preditivos;
 - H<sub>1</sub>: se o p-value do $\chi$<sup>2</sup> $\le$ 0,05, então pelo menos um beta é diferente de zero e estatisticamente significante.
 
-#### Comparação entre modelos
+### Comparação entre modelos
 Os modelos de logística binária podem ser comparados através de três parâmetros: o pseudo R<sup>2</sup> (exibido no summary), o AIC (Akaike Info Criterion) e o BIC (Bayesian Info Criterion).
 - Pseudo R<sup>2</sup>: quanto maior, melhor.
 - AIC e BIC: quanto mais próximo de zero, melhor.
@@ -286,7 +286,7 @@ aic = -2 * (modelo.llf) + 2 * (len(modelo.params) + 1)
 bic = -2 * (modelo.llf) + (len(modelo.params) + 1)*np.log(len(modelo))
 ```
 
-#### Predição
+### Predição
 Pode ser 'aberta' a expressão do modelo e substituem-se os betas e os parâmetros, como pode ser utilizado o atribuito `predict` do modelo calculado:
 ```
 modelo.predict(pd.DataFrame({target:[value], 'feature1':[value], 'feature2':[value]}))
@@ -297,12 +297,12 @@ Para realizar a predição (ou, a probabilidade) de cada uma das observações, 
 df['y_chapeu'] = modelo.predict()
 ```
 
-#### Cutoff
+### Cutoff
 Com a utilização de cutoffs (o nível é definido pelo programador, representando ponto de corte das probabilidades e estabelecido como float entre 0 e 1), temos que:
 - Se `y_chapeu` $\ge$ cutoff: evento
 - Se `y_chapeu` < cutoff: não-evento
 
-#### Matriz de Confusão
+### Matriz de Confusão
 Código copiado do prof. Dr. Luiz Paulo Fávero:
 ```
 from sklearn.metrics import confusion_matrix, accuracy_score, ConfusionMatrixDisplay, recall_score
@@ -356,7 +356,7 @@ Na Matriz de Confusão, levando em consideração o cutoff específico que foi e
 
 > F1score, tida como média harmônica entre Recall e Precision = 2 * Recall * Precison / (Recall + Precision)
 
-#### Curva ROC
+### Curva ROC
 Área abaixo da curva ou Receiver Operating Characteristic. É necessária a verificação da ROC para todo santo modelo de classificação que se programa.
 
 O gráfico da curva ROC é estabelecido estipulando a Sensitividade (ou tpr - true positive rate) no eixo Y e (1 - Especificidade = fpr = FP / (FP + TN), onde 'fpr' é a false positive rate) no eixo X. 
@@ -386,12 +386,12 @@ plt.yticks(np.arange(0, 1.1, 0.2), fontsize=14)
 plt.show()
 ```
 
-#### Coeficiente de Gini
+### Coeficiente de Gini
 Acredito não ser o mesmo raciocínio do Gini da Economia, indicador da concentração (ou não) de qualquer coisa - normalmente tido como indicador de concentração de renda.
 
 Este Gini calcula o valor da ROC acima da linha de 45° no gráfico (linha de 'chute' ou em inglês 'guess'), oscilando entre -1 e +1, com um score 0 resultando igual à linha guess. Para valores negativos de Gini pode-se descartar o modelo de imediato, uma vez que esse resultado é inferior à linha de chute.
 
-#### Procedimento Stepwise
+### Procedimento Stepwise
 Pode (para não escrever 'deve') ser realizado, de modo a manter apenas as variáveis estatisticamente significantes no modelo final. Realizado conforme constante [acima](#procedimento-stepwise).
 
 ## 4. Modelo Logístico Multinomial
@@ -424,7 +424,7 @@ modelo = MNLogit(endog=y, exog=X).fit()
 sm.discrete.discrete_model().fit()
 ```
 
-#### Cálculo do $\chi$<sup>2</sup> ('chi-quadrado', para validade ou não do modelo)
+### Cálculo do $\chi$<sup>2</sup> ('chi-quadrado', para validade ou não do modelo)
 O summary dessas funções também retorna LLR p-value, equivalente ao **p-value** da estatística F no modelo OLS, e aqui é um $\chi$<sup>2</sup> por se tratar de target qualitativo. _Um LLR p-value estatisticamente significante demonstra que existe pelo menos um beta estatisticamente significante em pelo menos um dos logitos._
 
 Com a função `MNLogit()` já temos os dois valores de LL<sub>0</sub> e de LL<sub>m</sub>, respectivamente `modelo.llnull` e `modelo.llf`.
@@ -445,10 +445,10 @@ A análise é análoga à da estatística F dos modelos OLS:
 - H<sub>0</sub>: se o p-value do $\chi$<sup>2</sup> > 0,05, então b<sub>1</sub> = b<sub>2</sub> = b<sub>3</sub> = ... = b<sub>n</sub> = 0. Deste modo, nenhum beta é estatisticamente significante e o modelo cai por terra, não podendo ser utilizada para fins preditivos;
 - H<sub>1</sub>: se o p-value do $\chi$<sup>2</sup> $\le$ 0,05, então pelo menos um beta é diferente de zero e estatisticamente significante.
 
-#### Comparação entre modelos
+### Comparação entre modelos
 Ver [Comparação entre modelos](#comparação-entre-modelos) da seção sobre Logística Binária.
 
-#### Predição
+### Predição
 Quando o modelo é realizado através da função `MNLogit()` pede-se atenção ao fato de que foi incluída uma constante previamente à estimação efetiva. Desta maneira, para realizar a predição do modelo é necessário também que se informe uma constante como referência:
 
 ```
@@ -465,13 +465,13 @@ X = sm.add_constant(x)
 result_todos = modelo.predict(X)
 ```
 
-#### O cutoff é inexistente nos logaritmos multinomiais!
+### O cutoff é inexistente nos logaritmos multinomiais!
 Como os resultados serão sempre 3 ou mais alternativas para cada observação, utiliza-se sempre a alternativa com maior probabilidade calculada de ocorrer o evento estudado:
 ```
 result.idxmax(axis=1)  # retorna a classificação final da predição (categoria 0 ou categoria 1 ou categoria 2 ou ...)
 ```
 
-#### Plotagem das probabilidades (apenas referência)
+### Plotagem das probabilidades (apenas referência)
 Código apenas como referência, ajustar conforme necessidade. Lembrando que é um gráfico cartesiano, como temos 3 ou mais classificações no total então este gráfico não consegue compreender todas as informações disponíveis, sendo necessária a realização de mais do que um gráfico isolado para o completo storytelling dos dados.
 
 ```
@@ -513,17 +513,45 @@ Dentro dos modelos para dados de contagem, algumas premissas precisam ser suprid
 - Não negativos (o zero conta)
 - Em uma dada exposição (por hora, a cada 3 meses, em um raio de 5km, etc.)
 
+Importante! A distribuição Poisson possui *tanto a média quanto a variância iguais* (ou muito próximas) a $\lambda$.
+
+Se porventura a variãncia for superior (ou muito superior) à média, isso é diagnóstico de distribuições [Poisson-Gama](#6-modelo-binomial-negativo-poisson-gamma)
+
 ### Formulação algébrica e no Python
 A probabilidade de ocorrência de uma contagem 'm' em uma determinada exposição é dada por:
-> p(Y<sub>i</sub>=m) = (e<sup>- $\lambda$ <sub>i</sub></sup> * $\lambda$<sub>i</sub><sup>m</sup>)/m!
+> p(Y<sub>i</sub>=m) = (e<sup>- $\lambda$<sub>i</sub></sup> * $\lambda$<sub>i</sub><sup>m</sup>)/m!
 
 O Modelo Poisson é dado por:
 > ln($\hat{Y}$<sub>i</sub>) = ln($\lambda$<sub>poisson<sub>i</sub></sub>) = $a$ + $b$<sub>1</sub>x<sub>1i</sub> + $b$<sub>2</sub>x<sub>2i</sub> + ... + $b$<sub>n</sub>x<sub>ni</sub>
 
+No Python, o código será nas bases de:
 ```
-smf.glm(..., family=sm.families.Poisson()).fit()
+smf.glm(formula='target ~ feature1 + feature2', data=df, family=sm.families.Poisson()).fit()
+
 sm.Poisson.from_formula().fit()
 ```
+IMPORTANTE! Para a utilização dos [Procedimentos Stepwise](#procedimento-stepwise) é necessário que o modelo utilizado seja gerado com a função `smf.glm()`. A função `Poisson.from_formula()` ainda não é abrangida pelos procedimentos do stepwise.
+
+### Comparação entre modelos
+Ver [Comparação entre modelos](#comparação-entre-modelos) da seção sobre Logística Binária.
+
+### Verificações para o modelo
+Após rodar o modelo temos os resultados com `modelo.summary()`, de forma análoga a todos os outros modelos GLM.
+
+#### Estatística t (para validade ou não dos parâmetros)
+Conforme disposto [um pouco mais acima](#estatística-t-para-validade-ou-não-dos-parâmetros).
+
+#### Teste de Superdirspersão (Cameron e Trivedi) (para diagnóstico de cauda longa)
+
+- 1º Passo: estimar um modelo Poisson conforme demonstrado acima;
+- 2º Passo: criar uma nova variável (Y<sup>*</sup>) com os valores estimados pelo modelo anterior;
+- 3º Passo: estimar um modelo auxiliar OLS, com a variável Y<sup>*</sup> como variável dependente, os fitted values do modelo Poisson como única variável preditora e sem o intercepto;
+- 4º Passo: Observar a significância do parâmetro beta.
+
+Para a variável Y<sup>*</sup>, tem-se que:
+> Y<sup>*</sup><sub>i</sub> = [(Y<sub>i</sub> - $\lambda$<sub>poisson<sub>i</sub></sub>)<sup>2</sup> - Y<sub>i</sub>]/$\lambda$<sub>poisson<sub>i</sub></sub>
+
+> Y<sup>*</sup><sub>i</sub> = $b$ * $\lambda$<sub>poisson<sub>i</sub></sub>
 
 ## 6. Modelo Binomial Negativo (Poisson-Gamma)
 texto
