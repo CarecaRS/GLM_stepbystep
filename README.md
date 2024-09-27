@@ -231,7 +231,6 @@ E, sendo assim, a probabilidade de ocorrência do evento se dá por:
 - p = e<sup>z</sup>/(1 + e<sup>z</sup>)
 - p = 1 / (1 + e<sup>-z</sup>)      <sub># favor notar o expoente negativo</sub>
 - p = 1 / (1 + e<sup>-($a$ + $b$<sub>1</sub>x<sub>1i</sub> + $b$<sub>2</sub>x<sub>2i</sub> + ... + $b$<sub>n</sub>x<sub>ni</sub>)</sup>)
-- THIAGO p = 1 / (1 + $\varepsilon^-(a + b_{1}_1i$ e<sup>-($a$ + $b$<sub>1</sub>x<sub>1i</sub> + $b$<sub>2</sub>x<sub>2i</sub> + ... + $b$<sub>n</sub>x<sub>ni</sub>)</sup>)
 
 No Python (ambos códigos resultam em respostas iguais):
 ```
@@ -260,10 +259,10 @@ Os valores dos loglikes podem ser obtidos através do atributo `.llf` de cada mo
 modelo_nulo.llf
 ```
   
-O cálculo do $\chi^{2}$ THIAGO <sup>2</sup> é realizado conforme segue abaixo.
-```
-$\chi^{2}$ THIAGO <sup>2</sup> = -2 * (LL<sub>0</sub> - LL<sub>m</sub>)
-```
+O cálculo do $\chi^{2}$ é realizado conforme segue abaixo.
+
+> $\chi^{2}$ = -2 * (LL<sub>0</sub> - LL<sub>m</sub>)
+
 
 onde LL<sub>0</sub> é o loglike do modelo nulo e LL<sub>m</sub> é o loglike do modelo estimado.
 
