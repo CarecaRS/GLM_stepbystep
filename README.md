@@ -29,7 +29,7 @@ A documentação básica pode ser encontrada no site do próprio pacote clicando
 |[**Logística Binária**](#3-modelo-logístico-binário)          |Qualitativa com apenas duas categorias                     |_Bernoulli_|
 |[**Logística Multinomial**](#4-modelo-logístico-multinomial)      |Qualitativa com 3+ categorias                                  |_Binomial_|
 |[**Poisson**](#5-modelo-poisson) / [**Zero-Inflated Poisson**](#7-modelo-binomial-zero-inflated-poisson)                    |Quantitativa com valores inteiros e não-negativos (contagem)   |_Poisson_|
-|[**Binomial Negativo**](#6-modelo-binomial-negativo) / [**Zero-Inflated Negative Binomial Poisson**](#8-modelo-binomial-negativo-zero-inflated-poisson)          |Quantitativa com valores inteiros e não-negativos (contagem)   |_Poisson-Gama_|
+|[**Binomial Negativo (Poisson-Gamma)**](#6-modelo-binomial-negativo-(poisson-gamma)) / [**Zero-Inflated Negative Binomial Poisson**](#8-modelo-binomial-negativo-zero-inflated-poisson)          |Quantitativa com valores inteiros e não-negativos (contagem)   |_Poisson-Gama_|
 
 # Modelos de Regressão
 
@@ -197,7 +197,7 @@ A execução da função acima retorna dois objetos: `y_chapeu` sendo os valores
 Utiliza-se `y_chapeu` como target da forma funcional do modelo em trabalho e roda-se novamente o modelo, refazendo todas as verificações pertinentes.
 
 ## 3. Modelo Logístico Binário
-Aqui variável target é dicotômica, o resultado será ou uma opção ou outra, tem ou não tem o evento. Por exemplo: no acidente do Titanic, a pessoa sobreviveu (evento) ou pereceu (não-evento); classificação de cogumelos entre não-comestíveis/venenosos (evento) ou comestíveis (não-evento); um arremesso de moedas vai resultar em cara (evento) ou coroa (não-evento). Como todo modelo logístico, retorna sempre uma probabilidade de ocorrer o evento ou o não-evento. A efetiva classificação de cada resultado de cada observação como evento ou não-evento se dá a partir de um _cutoff_, limite de corte que é definido pelo operador.
+Aqui a variável target é dicotômica, o resultado será sempre ou uma opção ou outra, tem ou não tem o evento. Por exemplo: no acidente do Titanic, a pessoa sobreviveu (evento) ou pereceu (não-evento); classificação de cogumelos entre não-comestíveis/venenosos (evento) ou comestíveis (não-evento); um arremesso de moedas vai resultar em cara (evento) ou coroa (não-evento). Como todo modelo logístico, retorna sempre uma probabilidade de ocorrer o evento ou o não-evento. A efetiva classificação de cada resultado de cada observação como evento ou não-evento nesta modelagem se dá a partir de um _cutoff_, limite de corte que é definido pelo operador.
 
 A distribuição de probabilidades de ocorrência de evento/não-evento da-se por:
 - `p` sendo a probabilidade de ocorrer o evento; e
@@ -229,7 +229,7 @@ Temos, por consequência, então:
 
 E, sendo assim, a probabilidade de ocorrência do evento se dá por: 
 - p = e<sup>z</sup>/(1 + e<sup>z</sup>)
-- p = 1 / (1 + e<sup>-z</sup>)      <sub># favor notar o expoente negativo</sub>
+- p = 1 / (1 + e<sup>-z</sup>)      <sub># favor notar o expoente negativo no logito</sub>
 - p = 1 / (1 + e<sup>-($a$ + $b$<sub>1</sub>x<sub>1i</sub> + $b$<sub>2</sub>x<sub>2i</sub> + ... + $b$<sub>n</sub>x<sub>ni</sub>)</sup>)
 
 No Python (ambos códigos resultam em respostas iguais):
@@ -465,7 +465,7 @@ X = sm.add_constant(x)
 result_todos = modelo.predict(X)
 ```
 
-#### O cutoff é inexistente nos logaritmos multinomiais
+#### O cutoff é inexistente nos logaritmos multinomiais!
 Como os resultados serão sempre 3 ou mais alternativas para cada observação, utiliza-se sempre a alternativa com maior probabilidade calculada de ocorrer o evento estudado:
 ```
 result.idxmax(axis=1)  # retorna a classificação final da predição (categoria 0 ou categoria 1 ou categoria 2 ou ...)
@@ -507,13 +507,25 @@ plt.show()
 ```
 
 ## 5. Modelo Poisson
-texto
+Dentro dos modelos para dados de contagem, algumas premissas precisam ser supridas para que a modelagem possa ser realizada:
+- Dados quantitativos
+- Discretos
+- Não negativos (o zero conta)
+- Em uma dada exposição (por hora, a cada 3 meses, em um raio de 5km, etc.)
+
+### Formulação algébrica e no Python
+A probabilidade de ocorrência de uma contagem 'm' em uma determinada exposição é dada por:
+> p(Y<sub>i</sub>=m) = (e<sup>-$\lambda$<sub>i</sub> * $\lambda$<sub>i</sub><sup>m</sup>)/m!
+
+O Modelo Poisson é dado por:
+> ln($\hat{Y}$<sub>i</sub>) = ln($\lambda$<sub>poisson<sub>i</sub></sub>= $a$ + $b$<sub>1</sub>x<sub>1i</sub> + $b$<sub>2</sub>x<sub>2i</sub> + ... + $b$<sub>n</sub>x<sub>ni</sub>
+
 ```
 smf.glm(..., family=sm.families.Poisson()).fit()
 sm.Poisson.from_formula().fit()
 ```
 
-## 6. Modelo Binomial Negativo
+## 6. Modelo Binomial Negativo (Poisson-Gamma)
 texto
 ```
 smf.glm(..., family=sm.families.NegativeBinomial(alpha=N).fit()
