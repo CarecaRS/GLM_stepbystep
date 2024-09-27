@@ -515,10 +515,10 @@ Dentro dos modelos para dados de contagem, algumas premissas precisam ser suprid
 
 ### Formulação algébrica e no Python
 A probabilidade de ocorrência de uma contagem 'm' em uma determinada exposição é dada por:
-> p(Y<sub>i</sub>=m) = (e<sup>-$\lambda$<sub>i</sub> * $\lambda$<sub>i</sub><sup>m</sup>)/m!
+> p(Y<sub>i</sub>=m) = (e<sup>- $\lambda$ <sub>i</sub></sup> * $\lambda$<sub>i</sub><sup>m</sup>)/m!
 
 O Modelo Poisson é dado por:
-> ln($\hat{Y}$<sub>i</sub>) = ln($\lambda$<sub>poisson<sub>i</sub></sub>= $a$ + $b$<sub>1</sub>x<sub>1i</sub> + $b$<sub>2</sub>x<sub>2i</sub> + ... + $b$<sub>n</sub>x<sub>ni</sub>
+> ln($\hat{Y}$<sub>i</sub>) = ln($\lambda$<sub>poisson<sub>i</sub></sub>) = $a$ + $b$<sub>1</sub>x<sub>1i</sub> + $b$<sub>2</sub>x<sub>2i</sub> + ... + $b$<sub>n</sub>x<sub>ni</sub>
 
 ```
 smf.glm(..., family=sm.families.Poisson()).fit()
