@@ -1,8 +1,8 @@
 # Modelos GLM
-Este é um resumo básico de utilização de modelos GLM/GLMM, criado para referência e uso pessoal. Essas referências e seus pacotes são exclusivos para uso em Python.
+Este é um resumo básico de utilização de modelos GLM, criado para referência e uso pessoal. Essas referências e seus pacotes são exclusivos para uso em Python.
 
 ## Sobre os pacotes
-Em GLM trabalha-se com o pacote `statsmodels`. Com ele sozinho é possível realizar todos os modelos GLM/GLMM estudados ao longo do MBA em Data Science & Analytics da USP (da turma 241 ao menos).
+Em GLM trabalha-se com o pacote `statsmodels`. Com ele sozinho é possível realizar todos os modelos GLM estudados ao longo do MBA em Data Science & Analytics da USP (da turma 241 ao menos).
 
 Alguns outros pacotes estatísticos também são utilizados para os diversos diagnósticos a serem feitos de acordo com cada modelo estimado, como por exemplo o pacote `scipy` e o pacote `statstests`.
 
@@ -533,7 +533,7 @@ sm.Poisson.from_formula().fit()
 IMPORTANTE! Para a utilização dos [Procedimentos Stepwise](#procedimento-stepwise) é necessário que o modelo utilizado seja gerado com a função `smf.glm()`. A função `Poisson.from_formula()` ainda não é abrangida pelos procedimentos do stepwise.
 
 ### Comparação entre modelos
-Ver [Comparação entre modelos](#comparação-entre-modelos) da seção sobre Logística Binária.
+Ver [Comparação entre modelos de contagem](#comparação-entre-modelos-de-contagem) situado mais para o final da página.
 
 ### Verificações para o modelo
 Após rodar o modelo temos os resultados com `modelo.summary()`, de forma análoga a todos os outros modelos GLM.
@@ -616,7 +616,7 @@ sm.NegativeBinomial.from_formula(target ~ feature1 + feature2, data=df).fit()
 ```
 
 ### Comparação entre modelos
-Ver [Comparação entre modelos](#comparação-entre-modelos) da seção sobre Logística Binária, é o mesmo raciocínio.
+Ver [Comparação entre modelos de contagem](#comparação-entre-modelos-de-contagem) situado mais para o final da página.
 
 ### Verificações para o modelo
 Após rodar o modelo temos os resultados com `modelo.summary()`, de forma análoga a todos os outros modelos GLM.
@@ -642,7 +642,7 @@ Enquanto um modelo Poisson inflacionado de zeros é estimado a partir da combina
 
 Percebe-se que a cauda longa da dispersão é sempre tratada por Poisson-Gama.
 
-A definição sobre a existência ou não de uma quantidade excessiva de zeros na variável dependente é elaborada por meio do teste de Vuong, disponível abaixo:
+A definição sobre a existência ou não de uma quantidade excessiva de zeros na variável dependente é elaborada por meio do teste de Vuong, disponível abaixo, com utilização `vuong_test(modelo1, modelo2)`:
 ```
 def vuong_test(m1, m2):
 
@@ -745,16 +745,71 @@ X2 = sm.add_constant(x2)
 modelo = sm.ZeroInflatedPoisson(y, X1, exog_infl=X2, inflation='logit').fit()
 ```
 
+### Comparação entre modelos
+Ver [Comparação entre modelos de contagem](#comparação-entre-modelos-de-contagem) situado mais para o final da página.
+
+### Verificações para o modelo
+Após rodar o modelo temos os resultados com `modelo.summary()`, de forma análoga a todos os outros modelos GLM, mas que aqui não nos importa. O que vale aqui é a comparação entre modelos utilizando o teste de Vuong.
+
+#### Teste de Vuong
+A definição sobre a existência ou não de uma quantidade excessiva de zeros na variável dependente é elaborada por meio do teste de Vuong, conforme ilustrado no [início dessa seção](#7-modelo-binomial-zero-inflated-poisson).
+
+### Predição
+O modelo estabelecido possui atributo `predict()`, então pode-se simplesmente chamar esse atributo e comandar a previsão para os dados que se deseja:
+```
+modelo.predict(X1, exog_infl=x2)  # faz a previsão para todas as observações do banco de dados
+
+modelo.predict(pd.DataFrame({'const':[1],'feature1':[value], 'feature2':[value]}),
+               exog_infl=pd.DataFrame({'const':[1], 'feature':[value]}))
+```
 ## 8. Modelo Binomial Negativo Zero-Inflated Poisson
-Enquanto a probabilidade _p_ de **ocorrência de nenhuma contagem** para dada observação _i_, ou seja, _p(Y<sub>i</sub> = 0)_, é também calculada levando-se em consideração a soma de um componente dicotômico com um componente de contagem, a probabilidade _p_ de **ocorrência de uma determinada contagem** _m_ (_m_ = 1, 2, ...), ou seja, _p(Y<sub>i</sub> = m), segue a expressão da probabilidade da distribuição Poisson-Gama:
+Enquanto a probabilidade _p_ de **ocorrência de nenhuma contagem** para dada observação _i_, ou seja, _p(Y<sub>i</sub> = 0)_, é também calculada levando-se em consideração a soma de um componente dicotômico com um componente de contagem, a probabilidade _p_ de **ocorrência de uma determinada contagem** _m_ (_m_ = 1, 2, ...), ou seja, _p(Y<sub>i</sub> = m), segue a expressão da probabilidade da distribuição Poisson-Gama.
+
+
+### Formulação algébrica e no Python
 - p(Y<sub>i</sub> = 0) = p<sub>logit<sub>i</sub></sub> + (1 - p<sub>logit<sub>i</sub></sub>) * (1 / (1 + $\phi$<sup>-1</sup> * $\lambda$<sub>bneg<sub>i</sub></sub>))<sup> $\phi$</sup>
 - p(Y<sub>i</sub> = m) = (1 - p<sub>logit<sub>i</sub></sub>) * [ $\delta$<sup> $\phi$</sup> * m<sub>i</sub><sup> $\phi$-1</sup> * e<sup>-m<sub>i</sub>* $\delta$</sup>/( $\phi$ - 1 )!]
+
+p<sub>logit<sub>i</sub></sub> = 1 / (1 + e^-($\gamma$ + $\delta$<sub>1</sub>w<sub>1i</sub> + $\delta$<sub>2</sub>w<sub>2i</sub> + ... + $\delta$<sub>n</sub>w<sub>ni</sub> ))
+
+$\lambda$<sub>bneg<sub>i</sub></sub> = e ^ ($a$ + $b$<sub>1</sub>x<sub>1i</sub> + $b$<sub>2</sub>x<sub>2i</sub> + $b$<sub>n</sub>x<sub>ni</sub>)
+
+No Python:
 ```
-sm.ZeroInflatedNegativeBinomialP().fit()
+y = df[target]
+x1 = df[features]
+X1 = sm.add_constant(x1)
+
+x2 = df[features que entrarão no componente logit]
+X2 = sm.add_constant(x2)
+
+modelo = [sm.]ZeroInflatedNegativeBinomialP(y, X1, exog_infl=X2, inflation='logit').fit()
+```
+### Comparação entre modelos
+Ver [Comparação entre modelos de contagem](#comparação-entre-modelos-de-contagem) situado mais para o final da página.
+
+### Verificações para o modelo
+Após rodar o modelo temos os resultados com `modelo.summary()`, de forma análoga a todos os outros modelos GLM, mas que aqui não nos importa. O que vale aqui é a comparação entre modelos utilizando o teste de Vuong.
+
+#### Teste de Vuong
+A definição sobre a existência ou não de uma quantidade excessiva de zeros na variável dependente é elaborada por meio do teste de Vuong, conforme ilustrado no [Modelo Binomial Zero-Inflated Poisson](#7-modelo-binomial-zero-inflated-poisson).
+
+### Predição
+O modelo estabelecido possui atributo `predict()`, então pode-se simplesmente chamar esse atributo e comandar a previsão para os dados que se deseja:
+```
+modelo.predict(X1, exog_infl=x2)  # faz a previsão para todas as observações do banco de dados
+
+modelo.predict(pd.DataFrame({'const':[1],'feature1':[value], 'feature2':[value]}),
+               exog_infl=pd.DataFrame({'const':[1], 'feature':[value]}))
 ```
 
-# Propriedades comuns aos modelos GLM/GLMM
-Os modelos desenvolvidos a partir de GLM/GLMM possuem atributos que são disponibilizados de forma agrupada através da utilização de `.summary()` e que podem ser resgatados individualmente através de códigos no script. Alguns exemplos seguem abaixo.
+## Comparação entre modelos de contagem
+Aplica-se então aos modelos Poisson, Zero-Inflated Poisson, Binomial Negativo (Poisson-Gamma) e Zero-Inflated Negative Binomial Poisson.
+
+Cada modelo gerado possuirá um loglik próprio (`modelo.llf`), o melhor modelo a ser seguido, uma vez que as verificações da validade estatística do modelo e dos seus componentes estejam válidas, será **sempre o modelo com llf mais próximo de zero**.
+
+# Propriedades comuns aos modelos GLM
+Os modelos desenvolvidos a partir de GLM possuem atributos que são disponibilizados de forma agrupada através da utilização de `.summary()` e que podem ser resgatados individualmente através de códigos no script. Alguns exemplos seguem abaixo.
 - Fitted values (valores estimados) do modelo: `modelo.fittedvalues`
 - Parãmetros (alpha e betas) do modelo: `modelo.params`
 - Estatística T dos parâmetros: `modelo.tvalues`
@@ -771,3 +826,11 @@ formula_modelo = ' + '.join(lista_colunas)
 formula_modelo = "[target aqui] ~ " + formula__modelo
 print("A forma funcional a ser utilizada é como segue abaixo:\n\n", formula_modelo)
 ```
+
+# Como fazer a escolha do modelo apropriado
+|**Verificação**   |**Poisson**| **Binomial Negativo** | **Poisson Zero-Inflated (ZIP)** | **Binomial Negativo Zero-Inflated (ZINB)** |
+|------------------|-----------|-----------------------|---------------------------------|--------------------------------------------|
+|Superdispersão (cauda longa)   |Não        |Sim                    | Não                             | Sim                                        |
+|------------------|-----------|-----------------------|---------------------------------|--------------------------------------------|
+|Zero-inflated (quantidade excessiva de zeros na variável dependente, 'y')    |Não        |Não                    | Sim                             | Sim                                        |
+
