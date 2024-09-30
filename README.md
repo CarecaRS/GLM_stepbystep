@@ -808,6 +808,12 @@ Aplica-se então aos modelos Poisson, Zero-Inflated Poisson, Binomial Negativo (
 
 Cada modelo gerado possuirá um loglik próprio (`modelo.llf`), o melhor modelo a ser seguido, uma vez que as verificações da validade estatística do modelo e dos seus componentes estejam válidas, será **sempre o modelo com llf mais próximo de zero**.
 
+# Como fazer a escolha do modelo apropriado
+|**Verificação**   |_[Poisson](#5-modelo-poisson)_| _[Binomial Negativo](#6-modelo-binomial-negativo-poisson-gamma)_ | _[Poisson Zero-Inflated (ZIP)](#7-modelo-binomial-zero-inflated-poisson)_ | _[Binomial Negativo Zero-Inflated (ZINB)](#8-modelo-binomial-negativo-zero-inflated-poisson)_ |
+|------------------|-----------|-----------------------|---------------------------------|--------------------------------------------|
+|Superdispersão (cauda longa)   |Não        |Sim                    | Não                             | Sim                                        |
+|Zero-inflated (quantidade excessiva de zeros na variável dependente, 'y')    |Não        |Não                    | Sim                             | Sim                                        |
+
 # Propriedades comuns aos modelos GLM
 Os modelos desenvolvidos a partir de GLM possuem atributos que são disponibilizados de forma agrupada através da utilização de `.summary()` e que podem ser resgatados individualmente através de códigos no script. Alguns exemplos seguem abaixo.
 - Fitted values (valores estimados) do modelo: `modelo.fittedvalues`
@@ -826,11 +832,4 @@ formula_modelo = ' + '.join(lista_colunas)
 formula_modelo = "[target aqui] ~ " + formula__modelo
 print("A forma funcional a ser utilizada é como segue abaixo:\n\n", formula_modelo)
 ```
-
-# Como fazer a escolha do modelo apropriado
-|**Verificação**   |**Poisson**| **Binomial Negativo** | **Poisson Zero-Inflated (ZIP)** | **Binomial Negativo Zero-Inflated (ZINB)** |
-|------------------|-----------|-----------------------|---------------------------------|--------------------------------------------|
-|Superdispersão (cauda longa)   |Não        |Sim                    | Não                             | Sim                                        |
-|------------------|-----------|-----------------------|---------------------------------|--------------------------------------------|
-|Zero-inflated (quantidade excessiva de zeros na variável dependente, 'y')    |Não        |Não                    | Sim                             | Sim                                        |
 
