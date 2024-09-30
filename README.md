@@ -642,7 +642,85 @@ Enquanto um modelo Poisson inflacionado de zeros é estimado a partir da combina
 
 Percebe-se que a cauda longa da dispersão é sempre tratada por Poisson-Gama.
 
-A definição sobre a existência ou não de uma quantidade excessiva de zeros na variável dependente é elaborada por meio do teste de Vuong, disponível no pacote `statstests`.
+A definição sobre a existência ou não de uma quantidade excessiva de zeros na variável dependente é elaborada por meio do teste de Vuong, disponível abaixo:
+```
+def vuong_test(m1, m2):
+
+    from scipy.stats import norm    
+
+    if m1.__class__.__name__ == "GLMResultsWrapper":
+        
+        glm_family = modelo_poisson.model.family
+
+        X = pd.DataFrame(data=m1.model.exog, columns=m1.model.exog_names)
+        y = pd.Series(m1.model.endog, name=m1.model.endog_names)
+
+        if glm_family.__class__.__name__ == "Poisson":
+            m1 = Poisson(endog=y, exog=X).fit()
+            
+        if glm_family.__class__.__name__ == "NegativeBinomial":
+            m1 = NegativeBinomial(endog=y, exog=X, loglike_method='nb2').fit()
+
+    supported_models = [ZeroInflatedPoisson,ZeroInflatedNegativeBinomialP,Poisson,NegativeBinomial]
+    
+    if type(m1.model) not in supported_models:
+        raise ValueError(f"Model type not supported for first parameter. List of supported models: (ZeroInflatedPoisson, ZeroInflatedNegativeBinomialP, Poisson, NegativeBinomial) from statsmodels discrete collection.")
+        
+    if type(m2.model) not in supported_models:
+        raise ValueError(f"Model type not supported for second parameter. List of supported models: (ZeroInflatedPoisson, ZeroInflatedNegativeBinomialP, Poisson, NegativeBinomial) from statsmodels discrete collection.")
+    
+    # Extração das variáveis dependentes dos modelos
+    m1_y = m1.model.endog
+    m2_y = m2.model.endog
+
+    m1_n = len(m1_y)
+    m2_n = len(m2_y)
+
+    if m1_n == 0 or m2_n == 0:
+        raise ValueError("Could not extract dependent variables from models.")
+
+    if m1_n != m2_n:
+        raise ValueError("Models appear to have different numbers of observations.\n"
+                         f"Model 1 has {m1_n} observations.\n"
+                         f"Model 2 has {m2_n} observations.")
+
+    if np.any(m1_y != m2_y):
+        raise ValueError("Models appear to have different values on dependent variables.")
+        
+    m1_linpred = pd.DataFrame(m1.predict(which="prob"))
+    m2_linpred = pd.DataFrame(m2.predict(which="prob"))        
+
+    m1_probs = np.repeat(np.nan, m1_n)
+    m2_probs = np.repeat(np.nan, m2_n)
+
+    which_col_m1 = [list(m1_linpred.columns).index(x) if x in list(m1_linpred.columns) else None for x in m1_y]    
+    which_col_m2 = [list(m2_linpred.columns).index(x) if x in list(m2_linpred.columns) else None for x in m2_y]
+
+    for i, v in enumerate(m1_probs):
+        m1_probs[i] = m1_linpred.iloc[i, which_col_m1[i]]
+
+    for i, v in enumerate(m2_probs):
+        m2_probs[i] = m2_linpred.iloc[i, which_col_m2[i]]
+
+    lm1p = np.log(m1_probs)
+    lm2p = np.log(m2_probs)
+
+    m = lm1p - lm2p
+
+    v = np.sum(m) / (np.std(m) * np.sqrt(len(m)))
+
+    pval = 1 - norm.cdf(v) if v > 0 else norm.cdf(v)
+
+    print("Vuong Non-Nested Hypothesis Test-Statistic (Raw):")
+    print(f"Vuong z-statistic: {round(v, 3)}")
+    print(f"p-value: {pval:.3f}")
+    print("")
+    print("==================Result======================== \n")
+    if pval <= 0.05:
+        print("H1: Indicates inflation of zeros at 95% confidence level")
+    else:
+        print("H0: Indicates no inflation of zeros at 95% confidence level")
+```
 
 Em relação especificamente aos modelos de regressão Poisson inflacionados de zeros, podemos definir que, enquanto a probabilidade p de ocorrência de **nenhuma contagem** para dada observação _i_, ou seja, p(Y<sub>i</sub> = 0), é calculada levando-se em consideração a soma de um componente dicotômico com um componente de contagem e, por tanto, deve-se definir a probabilidade p<sub>logit</sub> de não ocorrer nenhuma contagem devido exclusivamente ao componente dicotômico, a probabilidade p de ocorrência de determinada contagem m (m = 1, 2, 3...), ou seja, p(Y<sub>i</sub> = m) segue a própria expressão da probabilidade da distribuição Poisson, multiplicada por (1 - p<sub>logit</sub>).
 
@@ -655,15 +733,22 @@ p<sub>logit<sub>i</sub></sub> = 1 / (1 + e^-($\gamma$ + $\delta$<sub>1</sub>w<su
 
 $\lambda$<sub>poisson<sub>i</sub></sub> = e ^ ($a$ + $b$<sub>1</sub>x<sub>1i</sub> + $b$<sub>2</sub>x<sub>2i</sub> + $b$<sub>n</sub>x<sub>ni</sub>)
 
-HUEHEUHEUEHU
-1:48:01 da aula de dados de contagem II
-
+No Python:
 ```
-sm.ZeroInflatedPoisson().fit()
+y = df[target]
+x1 = df['features']
+X1 = sm.add_constant(x1)
+
+x2 = df['features preditoras que entrarão no componente Logit(inflate)']  # como consegue esse? força bruta? maior correlação com target?
+X2 = sm.add_constant(x2)
+
+modelo = sm.ZeroInflatedPoisson(y, X1, exog_infl=X2, inflation='logit').fit()
 ```
 
 ## 8. Modelo Binomial Negativo Zero-Inflated Poisson
-texto
+Enquanto a probabilidade _p_ de **ocorrência de nenhuma contagem** para dada observação _i_, ou seja, _p(Y<sub>i</sub> = 0)_, é também calculada levando-se em consideração a soma de um componente dicotômico com um componente de contagem, a probabilidade _p_ de **ocorrência de uma determinada contagem** _m_ (_m_ = 1, 2, ...), ou seja, _p(Y<sub>i</sub> = m), segue a expressão da probabilidade da distribuição Poisson-Gama:
+- p(Y<sub>i</sub> = 0) = p<sub>logit<sub>i</sub></sub> + (1 - p<sub>logit<sub>i</sub></sub>) * (1 / (1 + $\phi$<sup>-1</sup> * $\lambda$<sub>bneg<sub>i</sub></sub>))<sup> $\phi$</sup>
+- p(Y<sub>i</sub> = m) = (1 - p<sub>logit<sub>i</sub></sub>) * [ $\delta$<sup> $\phi$</sup> * m<sub>i</sub><sup> $\phi$-1</sup> * e<sup>-m<sub>i</sub>* $\delta$</sup>/( $\phi$ - 1 )!]
 ```
 sm.ZeroInflatedNegativeBinomialP().fit()
 ```
