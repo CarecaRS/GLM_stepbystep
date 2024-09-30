@@ -621,6 +621,27 @@ Ver [Comparação entre modelos de contagem](#comparação-entre-modelos-de-cont
 ### Verificações para o modelo
 Após rodar o modelo temos os resultados com `modelo.summary()`, de forma análoga a todos os outros modelos GLM.
 
+O valor do $\phi$ (ou 'alpha' no Python) pode ser estimado através de iterações com as características a seguir:
+```
+from tqdm import tqdm
+...
+n_samples = 10000
+alphas = np.linspace(0, 10, n_samples)
+llf = np.full(n_samples, fill_value=np.nan)
+
+for i, alpha in tqdm(enumerate(alphas), total=n_samples, desc='Estimating'):
+    try:
+        model = smf.glm(formula='violations ~ staff + post + corruption',
+                        data=df_corruption,
+                        family=sm.families.NegativeBinomial(alpha=alpha)).fit()
+    except:
+        continue
+    llf[i] = model.llf
+
+alpha_value = alphas[np.nanargmax(llf)].round(4)
+alpha_value
+```
+
 #### Estatística t (atesta a existência ou não da cauda longa)
 Para os diversos parâmetros, segue-se conforme disposto [um pouco mais acima](#estatística-t-para-validade-ou-não-dos-parâmetros).
 
@@ -715,11 +736,11 @@ def vuong_test(m1, m2):
     print(f"Vuong z-statistic: {round(v, 3)}")
     print(f"p-value: {pval:.3f}")
     print("")
-    print("==================Result======================== \n")
+    print("==================Resultado======================== \n")
     if pval <= 0.05:
-        print("H1: Indicates inflation of zeros at 95% confidence level")
+        print("H1: Resultados INDICAM inflação de zeros em um intervalo de confiança de 95%")
     else:
-        print("H0: Indicates no inflation of zeros at 95% confidence level")
+        print("H0: Resultados NÃO INDICAM inflação de zeros a um intervalo de confiança de 95%")
 ```
 
 Em relação especificamente aos modelos de regressão Poisson inflacionados de zeros, podemos definir que, enquanto a probabilidade p de ocorrência de **nenhuma contagem** para dada observação _i_, ou seja, p(Y<sub>i</sub> = 0), é calculada levando-se em consideração a soma de um componente dicotômico com um componente de contagem e, por tanto, deve-se definir a probabilidade p<sub>logit</sub> de não ocorrer nenhuma contagem devido exclusivamente ao componente dicotômico, a probabilidade p de ocorrência de determinada contagem m (m = 1, 2, 3...), ou seja, p(Y<sub>i</sub> = m) segue a própria expressão da probabilidade da distribuição Poisson, multiplicada por (1 - p<sub>logit</sub>).
@@ -827,9 +848,9 @@ Os modelos desenvolvidos a partir de GLM possuem atributos que são disponibiliz
 
 ## Facilitador para as fórmulas
 ```
-lista_colunas = list(df.drop(['dropa aqui as não-desejáveis e/ou a target'], axis=1)),
-formula_modelo = ' + '.join(lista_colunas)
-formula_modelo = "[target aqui] ~ " + formula__modelo
-print("A forma funcional a ser utilizada é como segue abaixo:\n\n", formula_modelo)
+columns_list = (df.drop(target, axis=1)).columns
+model_formula = ' + '.join(columns_list)
+model_formula = target + " ~ " + model_formula
+print("A forma funcional a ser utilizada é como segue abaixo:\n\n", model_formula)
 ```
 
