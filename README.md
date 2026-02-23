@@ -1,3 +1,6 @@
+### <img src="https://github.com/CarecaRS/TCC_USP/blob/master/caution.png" width="48"> This profile is no longer maintained here on GitHub, it has been migrated to [Codeberg.org](https://codeberg.org/twerminghoff/). <img src="https://github.com/CarecaRS/TCC_USP/blob/master/caution.png" width="48">
+
+
 # Modelos GLM
 Este é um resumo básico de utilização de modelos GLM, criado para referência e uso pessoal. Essas referências e seus pacotes são exclusivos para uso em Python.
 
